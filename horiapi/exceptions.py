@@ -37,4 +37,4 @@ class APIException(HoriException):
 class NoToken(HoriException):
     """Exception raised when the user try to request the gallery route with no token"""
     def __init__(self,message=f'You tried to request the gallery route with no token. Please pass your token to HoriAioClient'):
-        super().__init__(mes
+        super().__init__(message)
