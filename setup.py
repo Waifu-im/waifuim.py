@@ -11,6 +11,7 @@ setup(
     version=version,
     packages=['horiapi'],
     url='https://github.com/Bucolo/horiapi.py',
+    download_url='https://github.com/Bucolo/horiapi.py/archive/refs/tags/1.1.1.tar.gz'
     project_urls={
         'Issue tracker': 'https://github.com/Bucolo/horiapi.py/issues'
     },
