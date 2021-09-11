@@ -32,7 +32,7 @@ class HoriAioClient:
             session: An aiohttp session.
             token: your API token.(its optional since you only use it for the private gallery endpoint /fav/)
             appname: the name of your app in the user agent (please use it its easyer to identify you in the logs).
-            self.maintenance_error: The error massage that will be raise if the API status code is a 502.
+            maintenance_error: The error massage that will be raise if the API status code is a 502.
         """
         self.session=session
         self.token=token
