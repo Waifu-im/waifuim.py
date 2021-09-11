@@ -49,7 +49,7 @@ async def main():
         # Get one ero image excluding some files and the .gif extension
         ero = await haioct.nsfw('ero',exclude=['file1','file2.png','file3.jpeg'],gif=False)
 
-        #get your gallery (returns a dict)
+        # Get your gallery (returns a dict)
         gallery=await haioct.fav(insert=['file1','file2.png','file3.jpeg'],delete=['file1','file2.png','file3.jpeg'],newtoken="The new token you want to use from now on instead of the one passed at the begining (or not).")
 
         #get the endpoints
@@ -77,10 +77,10 @@ async def main():
     # Get one ero image excluding some files and the .gif extension
     ero = await haioct.nsfw('ero',exclude=['file1','file2.png','file3.jpeg'],gif=False)
 
-    #get your gallery (returns a dict)
+    # Get your gallery (returns a dict)
     gallery=await haioct.fav(insert=['file1','file2.png','file3.jpeg'],delete=['file1','file2.png','file3.jpeg'],newtoken="The new token you want to use from now on instead of the one passed at the begining (or not).")
 
-    #get the endpoints
+    # Get the endpoints
     endpoints=await haioct.endpoints(full=True) #it is optional you can simply not set it to True and get the endpoints without details.
     await haioct.close()
 
