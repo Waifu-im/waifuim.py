@@ -108,7 +108,6 @@ class HoriAioClient:
             A single or a list of image URL's.
         Raises:
             APIException: If the API response contains an error.
-            TagNotFound: If the tag is invalid.
         """
         data = await self._fetchtag('sfw',tag,raw,exclude,gif,many)
         return data
@@ -127,7 +126,6 @@ class HoriAioClient:
             A single or a list of image URL's.
         Raises:
             APIException: If the API response contains an error.
-            TagNotFound: If the tag is invalid.
         """
         data = await self._fetchtag('nsfw',tag,raw,exclude,gif,many)
         return data
