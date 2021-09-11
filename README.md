@@ -1,7 +1,7 @@
 # horiapi.py
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/horiapi.py?style=flat-square)](https://pypi.org/project/horiapi.py/)
 [![PyPI](https://img.shields.io/pypi/v/horiapi.py?style=flat-square)](https://pypi.org/project/horiapi.py/)
-[![License](https://img.shields.io/github/license/Buco/horiapi.py?style=flat-square)](https://github.com/Bucolo/horiapi.py/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/Bucolo/horiapi.py?style=flat-square)](https://github.com/Bucolo/horiapi.py/blob/main/LICENSE)
 
 A Python wrapper for hori API.
 
