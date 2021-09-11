@@ -20,7 +20,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-class APIException(Exception):
+class HoriException(Exception):
+    """Base exception class for the wrapper."""
+
+class APIException(HoriException):
     """Exception due to an error response from Hori API."""
     def __init__(self, status: int, reason: str, errormessage: str) -> None:
         """Initializes the APIException.
@@ -31,7 +34,7 @@ class APIException(Exception):
         """
         super().__init__(f'{status} {reason}: {errormessage}')
 
-class NoToken(Exception):
+class NoToken(HoriException):
     """Exception raised when the user try to request the gallery route with no token"""
     def __init__(self,message=f'You tried to request the gallery route with no token. Please pass your token to HoriAioClient'):
-        super().__init__(message)
+        super().__init__(mes
