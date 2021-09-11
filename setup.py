@@ -17,6 +17,7 @@ setup(
     license='MIT',
     author='Buco',
     description='A Python wrapper for Hori API.',
+    author_email='bucolo33fr@gmail.com',
     long_description=readme,
     long_description_content_type='text/markdown',
     python_requires='>=3.6',
