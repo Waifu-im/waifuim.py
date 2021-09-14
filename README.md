@@ -63,7 +63,7 @@ from waifuim import WaifuAioClient
 
 
 async def main():
-    haioct=WaifuAioClient()
+    wf=WaifuAioClient()
     # Get the json that the api return for the waifu tag
     waifujson= await wf.sfw('waifu',raw=True)
 
