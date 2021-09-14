@@ -1,9 +1,9 @@
-# horiapi.py
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/horiapi.py?style=flat-square)](https://pypi.org/project/horiapi.py/)
-[![PyPI](https://img.shields.io/pypi/v/horiapi.py?style=flat-square)](https://pypi.org/project/horiapi.py/)
-[![License](https://img.shields.io/github/license/Bucolo/horiapi.py?style=flat-square)](https://github.com/Bucolo/horiapi.py/blob/main/LICENSE)
+# waifuim.py
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/waifuim.py?style=flat-square)](https://pypi.org/project/waifuim.py/)
+[![PyPI](https://img.shields.io/pypi/v/waifuim.py?style=flat-square)](https://pypi.org/project/waifuim.py/)
+[![License](https://img.shields.io/github/license/Bucolo/waifuim.py?style=flat-square)](https://github.com/Bucolo/waifuim.py/blob/main/LICENSE)
 
-A Python wrapper for hori API.
+A Python wrapper for waifu.im API.
 
 ## Table of Contents
 - [Installation](#Installation)
@@ -15,73 +15,73 @@ A Python wrapper for hori API.
 
 Install from PyPI
 ```shell
-$ pip install horiapi.py
+$ pip install waifuim.py
 ```
 
 Install from source
 ```shell
-$ pip install git+https://github.com/Bucolo/horiapi.py
+$ pip install git+https://github.com/Bucolo/waifuim.py
 ```
 
 ## Usage
-For now you can only use HoriAioClient wich is async. Maybe a sync client will be released in the future.
+For now you can only use WaifuAioClient wich is async. Maybe a sync client will be released in the future.
 
-### Examples with HoriAioClient
+### Examples with WaifuAioClient
 ```python
 import asyncio
 
-from horiapi import HoriAioClient
+from waifuim import WaifuAioClient
 
 
 async def main():
-    async with HoriAioClient() as haioct:
+    async with WaifuAioClient() as wf:
 
         # Get the json that the api return for the waifu tag
-        waifujson= await haioct.sfw('waifu',raw=True)
+        waifujson= await wf.sfw('waifu',raw=True)
 
         # Get one random image url for the waifu tag
-        waifu_url = await haioct.sfw('waifu')
+        waifu_url = await wf.sfw('waifu')
 
         # Get 30 images url for the waifu tag (12 is the tag id)
-        waifulist= await haioct.nsfw(12,many=True)
+        waifulist= await wf.nsfw(12,many=True)
 
         # Get one ero image excluding some files and the .gif extension
-        ero = await haioct.nsfw('ero',exclude=['file1','file2.png','file3.jpeg'],gif=False)
+        ero = await wf.nsfw('ero',exclude=['file1','file2.png','file3.jpeg'],gif=False)
 
         # Get your gallery (returns a dict)
-        gallery=await haioct.fav(insert=['file1','file2.png','file3.jpeg'],delete=['file1','file2.png','file3.jpeg'],newtoken="The new token you want to use from now on instead of the one passed at the begining (or not).")
+        gallery=await wf.fav(insert=['file1','file2.png','file3.jpeg'],delete=['file1','file2.png','file3.jpeg'],newtoken="The new token you want to use from now on instead of the one passed at the begining (or not).")
 
         #get the endpoints
-        endpoints=await haioct.endpoints(full=True) #it is optional you can simply not set it to True and get the endpoints without details.
+        endpoints=await wf.endpoints(full=True) #it is optional you can simply not set it to True and get the endpoints without details.
 
 asyncio.run(main())
 ```
 ```python
 import asyncio
 
-from horiapi import HoriAioClient
+from waifuim import WaifuAioClient
 
 
 async def main():
-    haioct=HoriAioClient()
+    haioct=WaifuAioClient()
     # Get the json that the api return for the waifu tag
-    waifujson= await haioct.sfw('waifu',raw=True)
+    waifujson= await wf.sfw('waifu',raw=True)
 
     # Get one random image url for the waifu tag
-    waifu_url = await haioct.sfw('waifu')
+    waifu_url = await wf.sfw('waifu')
 
     # Get 30 images url for the waifu tag (12 is the tag id)
-    waifulist= await haioct.nsfw('waifu',many=True)
+    waifulist= await wf.nsfw('waifu',many=True)
 
     # Get one ero image excluding some files and the .gif extension
-    ero = await haioct.nsfw('ero',exclude=['file1','file2.png','file3.jpeg'],gif=False)
+    ero = await wf.nsfw('ero',exclude=['file1','file2.png','file3.jpeg'],gif=False)
 
     # Get your gallery (returns a dict)
-    gallery=await haioct.fav(insert=['file1','file2.png','file3.jpeg'],delete=['file1','file2.png','file3.jpeg'],newtoken="The new token you want to use from now on instead of the one passed at the begining (or not).")
+    gallery=await wf.fav(insert=['file1','file2.png','file3.jpeg'],delete=['file1','file2.png','file3.jpeg'],newtoken="The new token you want to use from now on instead of the one passed at the begining (or not).")
 
     # Get the endpoints
-    endpoints=await haioct.endpoints(full=True) #it is optional you can simply not set it to True and get the endpoints without details.
-    await haioct.close()
+    endpoints=await wf.endpoints(full=True) #it is optional you can simply not set it to True and get the endpoints without details.
+    await wf.close()
 
 asyncio.run(main())
 ```
@@ -92,12 +92,12 @@ You can pass some useful kwargs to the class
 ```python
 import aiohttp
 
-from horiapi import HoriAioClient
+from waifuim import WaifuAioClient
 
-haioct = HoriAioClient(session=aiohttp.ClientSession(),appname="MyDiscordBot",token="The Token that fav will use if newtoken isn't provided.",maintenance_error="The error message that you want to raise if the api is returning a 502.")
+wf = WaifuAioClient(session=aiohttp.ClientSession(),appname="MyDiscordBot",token="The Token that fav will use if newtoken isn't provided.",maintenance_error="The error message that you want to raise if the api is returning a 502.")
 
 # ...
 ```
 
 ## License
-MIT © [Buco](https://github.com/Bucolo/horiapi.py/blob/main/LICENSE)
+MIT Â© [Buco](https://github.com/Bucolo/waifuim.py/blob/main/LICENSE)
