@@ -1,22 +1,22 @@
 import re
 from setuptools import setup
-with open('horiapi/__init__.py', 'r') as f:
+with open('waifuim/__init__.py', 'r') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
 with open('README.md', 'r') as f:
     readme = f.read()
 
 setup(
-    name='horiapi.py',
+    name='waifuim.py',
     version=version,
-    packages=['horiapi'],
-    url='https://github.com/Bucolo/horiapi.py',
+    packages=['waifuim'],
+    url='https://github.com/Bucolo/waifuim.py',
     project_urls={
-        'Issue tracker': 'https://github.com/Bucolo/horiapi.py/issues'
+        'Issue tracker': 'https://github.com/Bucolo/waifuim.py/issues'
     },
     license='MIT',
     author='Buco',
-    description='A Python wrapper for Hori API.',
+    description='A Python wrapper for waifu.im API.',
     author_email='bucolo33fr@gmail.com',
     long_description=readme,
     long_description_content_type='text/markdown',
