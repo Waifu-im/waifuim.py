@@ -39,6 +39,12 @@ class WaifuAioClient:
         self.appname=appname
         self.maintenance_error=maintenance_error
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exception_type, exception, traceback):
+        await self.close()
+
     async def close(self) -> None:
         """Closes the aiohttp session (call it when you're sure you wont do any request anymore)."""
         if self.session is not None:
@@ -161,4 +167,6 @@ class WaifuAioClient:
         """
         data = await self._fetchendpoints(full=full)
         return data
+
+
 
