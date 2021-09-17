@@ -20,12 +20,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-from typing import Optional, Any, Union, Dict, List
+from typing import (
+    Optional,
+    Union,
+    Any,
+    Dict,
+    List
+)
+
 import aiohttp
+
 from .exceptions import APIException,NoToken
 from .utils import APIBaseURL,requires_token
+
+
 class WaifuAioClient:
-    def __init__(self,session : Optional[aiohttp.ClientSession] = aiohttp.ClientSession(),token : Optional[str]=None,appname : Optional[str] = None,maintenance_error="The API is in maintenance please retry later."):
+    def __init__(
+        self,
+        session: aiohttp.ClientSession = aiohttp.ClientSession(),
+        token: Optional[str] = None,
+        appname: Optional[str] = None,
+        maintenance_error: str = "The API is in maintenance please retry later."
+
+    ):
         """Asynchronous wrapper client for waifu.im API.
         This class is used to interact with the API (http requests).
         Attributes:
@@ -50,7 +67,7 @@ class WaifuAioClient:
         if self.session is not None:
             await self.session.close()
 
-    async def _make_request(self,url:str,method:str,*args, **kwargs):
+    async def _make_request(self, url: str, method: str, *args, **kwargs):
         response = await getattr(self.session, method)(url, *args, **kwargs)
         if response.status==502:
             raise APIException(response.status,response.reason,self.maintenance_error)
@@ -60,7 +77,7 @@ class WaifuAioClient:
         else:
             raise APIException(response.status,response.reason,infos['error'])
 
-    async def _fetchtag(self,type_,tag,raw,exclude,gif,many):
+    async def _fetchtag(self, type_, tag, raw, exclude, gif, many):
         """process the request for a specific tag and check if everything is correct."""
         params={}
         headers={}
@@ -78,7 +95,7 @@ class WaifuAioClient:
         return infos.get('url')
 
 
-    async def _fetchgallery(self,insert,delete):
+    async def _fetchgallery(self, insert, delete):
         """process the request for a specific tag and check if everything is correct."""
         params={}
         headers={}
@@ -91,7 +108,7 @@ class WaifuAioClient:
         headers.update({'Authorization':f'Bearer {self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/",'get',params=params,headers=None if not headers else headers)
 
-    async def _fetchendpoints(self,full=False):
+    async def _fetchendpoints(self, full=False):
         endpointurl=f"{APIBaseURL}/endpoints/"
         headers={}
         if full:
@@ -100,7 +117,7 @@ class WaifuAioClient:
             headers.update({'User-Agent':f'aiohttp/{aiohttp.__version__}; {self.appname}'})
         return await self._make_request(endpointurl,'get',headers=None if not headers else headers)
 
-    async def sfw(self,tag:Union[int,str],raw : bool=False,exclude:List[str]=None,gif:bool=None,many:bool=None):
+    async def sfw(self, tag: Union[int,str], raw: bool=False, exclude: List[str]=None, gif: bool=None, many: bool=None):
         """Gets a single or multiple unique SFW images of the specific category.
         Args:
             tag: The tag to request.
@@ -118,7 +135,7 @@ class WaifuAioClient:
         data = await self._fetchtag('sfw',tag,raw,exclude,gif,many)
         return data
 
-    async def nsfw(self,tag:Union[int,str],raw : bool=False,exclude:List[str]=None,gif:bool=None,many:bool=None):
+    async def nsfw(self, tag: Union[int,str], raw: bool=False, exclude: List[str]=None, gif: bool=None, many: bool=None):
         """Gets a single or multiple unique NSFW (Not Safe for Work) images of the specific category.
         Args:
             tag: The tag to request.
@@ -137,7 +154,7 @@ class WaifuAioClient:
         return data
 
     @requires_token
-    async def fav(self,insert:List[str]=None,delete:List[str]=None,newtoken:str=None):
+    async def fav(self, insert: List[str]=None, delete: List[str]=None, newtoken: str=None):
         """Get your favorite gallery.""
 
         Kwargs:
@@ -154,7 +171,7 @@ class WaifuAioClient:
         data = await self._fetchgallery(insert,delete)
         return data
 
-    async def endpoints(self,full=False):
+    async def endpoints(self, full=False):
         """Gets the API endpoints.
 
         Kwargs:
