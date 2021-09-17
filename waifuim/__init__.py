@@ -25,4 +25,4 @@ from .exceptions import *
 from .utils import requires_token,APIBaseURL
 
 __author__ = 'Buco'
-__version__ = '1.2.3'
+__version__ = '1.2.4'
