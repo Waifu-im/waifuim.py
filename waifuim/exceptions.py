@@ -20,9 +20,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-from .aioclient import WaifuAioClient
-from .exceptions import *
-from .utils import requires_token,APIBaseURL
+class WaifuException(Exception):
+    """Base exception class for the wrapper."""
 
-__author__ = 'Buco'
-__version__ = '1.3.0'
+class APIException(WaifuException):
+    """Exception due to an error response from waifu.im API."""
+    def __init__(self, status: int, reason: str, errormessage: str) -> None:
+        """Initializes the APIException.
+        Args:
+            status: HTTP status code of the response.
+            reason: HTTP status reason of the response.
+            message: The response message.
+        """
+        super().__init__(f'{status} {reason}: {errormessage}')
+
+class NoToken(WaifuException):
+    """Exception raised when the user try to request the gallery route with no token"""
+    def __init__(self,message=f'You tried to request the gallery route with no token. Please pass your token to HoriAioClient'):
+        super().__init__(message)

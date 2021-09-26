@@ -20,9 +20,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-from .aioclient import WaifuAioClient
-from .exceptions import *
-from .utils import requires_token,APIBaseURL
+from .exceptions import NoToken
 
-__author__ = 'Buco'
-__version__ = '1.3.0'
+APIBaseURL="https://api.waifu.im/"
+
+def requires_token(func):
+    """A decorator used to check if the user passed a token before trying to use the fav method."""
+    def wrapper(*args, **kwargs):
+        if kwargs.get('token'):
+            return func(*args,**kwargs)
+        elif args[0].token:
+            return func(*args,**kwargs)
+        raise NoToken
+    return wrapper
