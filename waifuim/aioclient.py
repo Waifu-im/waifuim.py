@@ -164,7 +164,7 @@ class WaifuAioClient:
         """Get your favorite gallery.""
 
         Kwargs:
-            id: The user's id you want to access the gallery (only for trusted apps).
+            user_id: The user's id you want to access the gallery (only for trusted apps).
             toggle: A list of file names that you want to add if they do not already exist in, else remove, to your gallery in the same time.
             insert: A list of file names that you want to add to your gallery in the same time.
             delete: A list of file names that you want to remove from your gallery in the same time.
