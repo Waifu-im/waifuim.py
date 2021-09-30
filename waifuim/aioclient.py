@@ -80,7 +80,11 @@ class WaifuAioClient:
     async def _fetchtag(self, type_, tag, raw = False, **kwargs):
         """process the request for a specific tag and check if everything is correct."""
         headers={}
-        params=dict([(i[0], ','.join(i[1])) if isinstance(i[1], list) else (i[0], str(i[1])) for i in kwargs.items()])
+        if (_set := {'gif', 'many', 'exclude'}.intersection(kwargs)):
+            kwrags= {kwrags[i] : i for i in _set} 
+            params=dict([(i[0], ','.join(i[1])) if isinstance(i[1], list) else i for i in kwrags.items()])
+        else:
+            raise ValueError("Un-Recognized Key-Word Arguments were passed on the Function.")
 
         if self.appname:
             headers.update({'User-Agent':f'aiohttp/{aiohttp.__version__}; {self.appname}'})
@@ -92,7 +96,13 @@ class WaifuAioClient:
 
     async def _fetchgallery(self, token = None, **kwargs):
         """process the request for a specific tag and check if everything is correct."""
-        params=dict([(i[0], ','.join(i[1])) if isinstance(i[1], list) else i for i in kwrags.items()])
+        
+        if (_set := {'id', 'toggle', 'delete', 'insert'}.intersection(kwargs)):
+            kwrags= {kwrags[i] : i for i in _set} 
+            params=dict([(i[0], ','.join(i[1])) if isinstance(i[1], list) else i for i in kwrags.items()])
+        else:
+            raise ValueError("Un-Recognized Key-Word Arguments were passed on the Function.")
+            
         headers={}
         if self.appname:
             headers={'User-Agent':f'aiohttp/{aiohttp.__version__}; {self.appname}'}
