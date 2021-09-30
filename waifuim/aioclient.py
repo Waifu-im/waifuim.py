@@ -77,16 +77,11 @@ class WaifuAioClient:
         else:
             raise APIException(response.status,response.reason,infos['error'])
 
-    async def _fetchtag(self, type_, tag, raw, exclude, gif, many):
+    async def _fetchtag(self, type_, tag, raw = False, **kwargs):
         """process the request for a specific tag and check if everything is correct."""
-        params={}
         headers={}
-        if many is not None:
-            params.update({'many':str(many)})
-        if gif is not None:
-            params.update({'gif':str(gif)})
-        if exclude is not None:
-            params.update({'exclude':','.join(exclude)})
+        params=dict([(i[0], ','.join(i[1])) if isinstance(i[1], list) else (i[0], str(i[1])) for i in kwargs.items()])
+
         if self.appname:
             headers.update({'User-Agent':f'aiohttp/{aiohttp.__version__}; {self.appname}'})
         infos= await self._make_request(f"{APIBaseURL}{type_}/{tag}/",'get',params=params,headers=None if not headers else headers)
@@ -95,18 +90,10 @@ class WaifuAioClient:
         return [im.get('url') for im in infos.get('tags')[0].get('images')] if many else infos.get('tags')[0].get('images')[0].get('url')
 
 
-    async def _fetchgallery(self, user_id, toggle, insert, delete, token):
+    async def _fetchgallery(self, token = None, **kwargs):
         """process the request for a specific tag and check if everything is correct."""
-        params={}
+        params=dict([(i[0], ','.join(i[1])) if isinstance(i[1], list) else i for i in kwrags.items()])
         headers={}
-        if user_id:
-            params.update({'id':user_id})
-        if toggle:
-            params.update({'toggle':','.join(toggle)})
-        if delete:
-            params.update({'delete':','.join(delete)})
-        if insert:
-            params.update({'insert':','.join(insert)})
         if self.appname:
             headers={'User-Agent':f'aiohttp/{aiohttp.__version__}; {self.appname}'}
         if not token:
