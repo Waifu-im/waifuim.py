@@ -169,10 +169,9 @@ class WaifuAioClient:
         Raises:
             APIException: If the API response contains an error.
         """
-        endpointurl=APIBaseURL+"endpoints_info/" if full else "/endpoints/"
+        route_end="endpoints_info/" if full else "endpoints/"
+        endpointurl=APIBaseURL+route_end
         headers=self._create_params(**{'User-Agent':f'aiohttp/{aiohttp.__version__}; {self.appname}' if self.appname else None})
-        if full:
-            endpointurl=f"{APIBaseURL}/endpoints_info/"
         return await self._make_request(endpointurl,'get',headers=headers)
 
 
