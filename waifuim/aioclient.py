@@ -84,9 +84,9 @@ class WaifuAioClient:
         if rt:
             return rt
 
-    async def _fetchtag(self, type_, tag, raw, exclude, gif, many):
+    async def _fetchtag(self, type_, tag, raw, exclude, gif, many, top):
         """process the request for a specific tag and check if everything is correct."""
-        params=self._create_params(exclude=exclude,gif=gif,many=many)
+        params=self._create_params(exclude=exclude,gif=gif,many=many,top=top)
         headers=self._create_params(**{'User-Agent':f'aiohttp/{aiohttp.__version__}; {self.appname}' if self.appname else None})
         infos= await self._make_request(f"{APIBaseURL}{type_}/{tag}/",'get',params=params,headers=headers)
         if raw:
@@ -94,7 +94,7 @@ class WaifuAioClient:
         return [im.get('url') for im in infos.get('tags')[0].get('images')] if many else infos.get('tags')[0].get('images')[0].get('url')
 
 
-    async def sfw(self, tag: Union[int,str], raw: bool=False, exclude: List[str]=None, gif: bool=None, many: bool=None):
+    async def sfw(self, tag: Union[int,str], raw: bool=False, exclude: List[str]=None, gif: bool=None, many: bool=None, top: bool=None):
         """Gets a single or multiple unique SFW images of the specific category.
         Args:
             tag: The tag to request.
@@ -109,10 +109,10 @@ class WaifuAioClient:
         Raises:
             APIException: If the API response contains an error.
         """
-        data = await self._fetchtag('sfw',tag,raw,exclude,gif,many)
+        data = await self._fetchtag('sfw',tag,raw,exclude,gif,many,top)
         return data
 
-    async def nsfw(self, tag: Union[int,str], raw: bool=False, exclude: List[str]=None, gif: bool=None, many: bool=None):
+    async def nsfw(self, tag: Union[int,str], raw: bool=False, exclude: List[str]=None, gif: bool=None, many: bool=None, top: bool=None):
         """Gets a single or multiple unique NSFW (Not Safe for Work) images of the specific category.
         Args:
             tag: The tag to request.
@@ -127,7 +127,7 @@ class WaifuAioClient:
         Raises:
             APIException: If the API response contains an error.
         """
-        return await self._fetchtag('nsfw',tag,raw,exclude,gif,many)
+        return await self._fetchtag('nsfw',tag,raw,exclude,gif,many,top)
 
     @requires_token
     async def fav(self, user_id: str=None,toggle : List[str]=None,insert: List[str]=None, delete: List[str]=None, token: str=None):
