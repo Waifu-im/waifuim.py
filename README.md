@@ -57,6 +57,9 @@ async def main():
         # Get some informations about one or multiple images
         info=await wf.info(images=["file1.png","file2"])
 
+        # Get the 30 most liked waifu images
+        top=await wf.sfw("waifu",many=True,top=True)
+
 asyncio.run(main())
 ```
 ```python
@@ -87,6 +90,10 @@ async def main():
 
     # Get some informations about one or multiple images
     info=await wf.info(images=["file1.png","file2"])
+
+    # Get the 30 most liked waifu images
+    top=await wf.sfw("waifu",many=True,top=True)
+    
     await wf.close()
 
 asyncio.run(main())
