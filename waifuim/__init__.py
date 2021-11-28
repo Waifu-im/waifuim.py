@@ -22,5 +22,5 @@ SOFTWARE."""
 
 from .aioclient import WaifuAioClient
 from .exceptions import *
-from .utils import requires_token,APIBaseURL
+from .utils import requires_token, APIBaseURL
 from .moduleinfo import *
