@@ -20,9 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-from .aioclient import WaifuAioClient
 from .exceptions import *
-from .utils import requires_token,APIBaseURL
+from .aioclient import WaifuAioClient
+from .utils import requires_token, APIBaseURL
 
 __author__ = 'Buco'
 __version__ = '2.4.1'
