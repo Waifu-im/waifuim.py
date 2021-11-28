@@ -107,11 +107,13 @@ class WaifuAioClient:
     async def _fetchtag(self, type_, tag, raw, exclude, gif, many,top):
         """process the request for a specific tag and check if everything is correct."""
 
-        params = self._create_params(exclude = exclude,gif = gif,many = many,top = top)
+        params = self._create_params(exclude=exclude, gif=gif, 
+                                     many=many, top=top)
 
         headers = self._create_params(**{'User-Agent': self._appname}) 
 
-        infos = await self._make_request(f"{APIBaseURL}{type_}/{tag}/",'get',params = params,headers = headers)
+        infos = await self._make_request(f"{APIBaseURL}{type_}/{tag}/",'get',
+                                         params=params, headers=headers)
 
         if raw:
             return infos
@@ -237,6 +239,3 @@ class WaifuAioClient:
         headers = self._create_params(**{'User-Agent': self._appname})
         return await self._make_request(APIBaseURL+'endpoints/','get',
                                         headers=headers, params=params)
-
-
-WaifuAioClient()
