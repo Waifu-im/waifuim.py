@@ -81,7 +81,6 @@ class WaifuAioClient:
         await self._close()
 
     async def _close(self) -> None:
-        """Closes the aiohttp session (call it when you're sure you wont do any request anymore)."""
         if self._session is not None:
             await self._session.close()
 
@@ -224,7 +223,7 @@ class WaifuAioClient:
                                         params=params, headers=headers)
 
 
-    async def endpoints(self, full = False):
+    async def endpoints(self, full = False) -> Any:
         """Gets the API endpoints.
 
         Kwargs:
@@ -239,3 +238,7 @@ class WaifuAioClient:
         headers = self._create_params(**{'User-Agent': self._appname})
         return await self._make_request(APIBaseURL+'endpoints/','get',
                                         headers=headers, params=params)
+    
+    async def stop(self) -> None:
+        """Closes the aiohttp session (call it when you're sure you wont do any request anymore)."""
+        await self._close()
