@@ -37,28 +37,28 @@ async def main():
     async with WaifuAioClient() as wf:
 
         # Get the json that the api return for the waifu tag
-        waifujson= await wf.sfw('waifu',raw=True)
+        waifujson= await wf.sfw('waifu',raw = True)
 
         # Get one random image url for the waifu tag
         waifu_url = await wf.sfw('waifu')
 
         # Get 30 images url for the waifu tag (12 is the tag id)
-        waifulist= await wf.nsfw(12,many=True)
+        waifulist= await wf.nsfw(12, many = True)
 
         # Get one ero image excluding some files and the .gif extension
-        ero = await wf.nsfw('ero',exclude=['file1','file2.png'],gif=False)
+        ero = await wf.nsfw('ero',exclude = ['file1', 'file2.png'], gif = False)
 
         # Get your gallery (returns a dict)
-        gallery=await wf.fav(toggle=['file20'],insert=['file1'],token="A token")
+        gallery=await wf.fav(toggle = ['file20'], insert = ['file1'], token = "A token")
 
         #get the endpoints
-        endpoints=await wf.endpoints(full=True) #it is optional
+        endpoints=await wf.endpoints(full = True) #it is optional
 
         # Get some informations about one or multiple images
-        info=await wf.info(images=["file1.png","file2"])
+        info=await wf.info(images = ["file1.png" ,"file2"])
 
         # Get the 30 most liked waifu images
-        top=await wf.sfw("waifu",many=True,top=True)
+        top=await wf.sfw("waifu", many = True, top = True)
 
 asyncio.run(main())
 ```
@@ -71,29 +71,29 @@ from waifuim import WaifuAioClient
 async def main():
     wf=WaifuAioClient()
     # Get the json that the api return for the waifu tag
-    waifujson= await wf.sfw('waifu',raw=True)
+    waifujson= await wf.sfw('waifu', raw = True)
 
     # Get one random image url for the waifu tag
     waifu_url = await wf.sfw('waifu')
 
     # Get 30 images url for the waifu tag (12 is the tag id)
-    waifulist= await wf.nsfw('waifu',many=True)
+    waifulist= await wf.nsfw('waifu', many = True)
 
     # Get one ero image excluding some files and the .gif extension
-    ero = await wf.nsfw('ero',exclude=['file1','file2.png','file3.jpeg'],gif=False)
+    ero = await wf.nsfw('ero', exclude = ['file1', 'file2.png', 'file3.jpeg'], gif = False)
 
     # Get your gallery (returns a dict)
-    gallery=await wf.fav(toggle=['file20'],delete=['file1'])
+    gallery=await wf.fav(toggle = ['file20'], delete = ['file1'])
 
     # Get the endpoints
     endpoints=await wf.endpoints(full=True) #it is optional
 
     # Get some informations about one or multiple images
-    info=await wf.info(images=["file1.png","file2"])
+    info=await wf.info(images = ["file1.png", "file2"])
 
     # Get the 30 most liked waifu images
-    top=await wf.sfw("waifu",many=True,top=True)
-    
+    top=await wf.sfw("waifu", many = True, top = True)
+
     await wf.close()
 
 asyncio.run(main())
@@ -103,13 +103,11 @@ asyncio.run(main())
 You can pass some useful kwargs to the class
 
 ```python
-import aiohttp
-
 from waifuim import WaifuAioClient
 
-wf = WaifuAioClient(session=aiohttp.ClientSession(),
-    appname="MyDiscordBot",
-    token="Default token")
+wf = WaifuAioClient(session = an_aiohttpClientSession_created_asynchronously,
+    appname = "MyDiscordBot",
+    token = "Default token")
 
 # ...
 ```
