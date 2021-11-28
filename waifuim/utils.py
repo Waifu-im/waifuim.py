@@ -22,14 +22,19 @@ SOFTWARE."""
 
 from .exceptions import NoToken
 
-APIBaseURL="https://api.waifu.im/"
+APIBaseURL="https://api.waifu.im/" # this can be placed in the aioclient.py itself
 
 def requires_token(func):
     """A decorator used to check if the user passed a token before trying to use the fav method."""
     def wrapper(*args, **kwargs):
-        if kwargs.get('token'):
-            return func(*args,**kwargs)
-        elif args[0].token:
-            return func(*args,**kwargs)
-        raise NoToken
+
+        if kwargs.get("token") or args[0].token:
+
+            return func(*args, **kwargs)
+
+        raise NoToken(*('You tried to request the gallery route with no token.', 
+                        'Please pass your token to WaifuAioClient')) 
+                        # test this out and see im not super sure
+                        # this might work?, prolly will
+
     return wrapper
