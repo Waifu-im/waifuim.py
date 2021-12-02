@@ -60,6 +60,9 @@ async def main():
         # Get the 30 most liked waifu images
         top=await wf.sfw("waifu", many = True, top = True)
 
+        # Get completly random images, you can use same kwargs as sfw and nsfw
+        random=await wf.random()
+
 asyncio.run(main())
 ```
 ```python
@@ -94,6 +97,9 @@ async def main():
     # Get the 30 most liked waifu images
     top=await wf.sfw("waifu", many = True, top = True)
 
+    # Get completly random images, you can use same kwargs as sfw and nsfw
+    random=await wf.random()
+
     await wf.close()
 
 asyncio.run(main())
@@ -106,8 +112,8 @@ You can pass some useful kwargs to the class
 from waifuim import WaifuAioClient
 
 wf = WaifuAioClient(session = an_aiohttpClientSession_created_asynchronously,
-    appname = "MyDiscordBot",
-    token = "Default token")
+    appname = "TheNameOfYourApplication",
+    token = "The default token to use in routes requiring authentifiction.")
 
 # ...
 ```
