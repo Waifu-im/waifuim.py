@@ -37,34 +37,36 @@ async def main():
     async with WaifuAioClient() as wf:
 
         # Get the json that the api return for the waifu tag
-        waifujson= await wf.sfw('waifu',raw = True)
+        waifujson = await wf.sfw("waifu", raw=True)
 
         # Get one random image URL for the waifu tag
-        waifu_url = await wf.sfw('waifu')
+        waifu_url = await wf.sfw("waifu")
 
         # Get 30 images URLs for the waifu tag (12 is the tag ID)
-        waifulist= await wf.nsfw(12, many = True)
+        waifulist = await wf.nsfw(12, many=True)
 
         # Get one ero image excluding some files and the .gif extension
-        ero = await wf.nsfw('ero',exclude = ['file1', 'file2.png'], gif = False)
+        ero = await wf.nsfw("ero", exclude=["file1", "file2.png"], gif=False)
 
         # Get your gallery (returns a dict)
-        gallery=await wf.fav(toggle = ['file20'], insert = ['file1'], token = "A token")
+        gallery = await wf.fav(toggle=["file20"], insert=["file1"], token="A token")
 
         # Get the endpoints
-        endpoints=await wf.endpoints(full = True) #it is optional
+        endpoints = await wf.endpoints(full=True)  # it is optional
 
         # Get some informations about one or multiple images
-        info=await wf.info(images = ["file1.png" ,"file2"])
+        info = await wf.info(images=["file1.png", "file2"])
 
         # Get the 30 most liked waifu images
-        top=await wf.sfw("waifu", many = True, top = True)
+        top = await wf.sfw("waifu", many=True, top=True)
 
         # Get completely random images, you can use same kwargs as SFW and NSFW
-        random=await wf.random()
+        random = await wf.random()
+
 
 asyncio.run(main())
 ```
+
 ```python
 import asyncio
 
@@ -72,35 +74,36 @@ from waifuim import WaifuAioClient
 
 
 async def main():
-    wf=WaifuAioClient()
+    wf = WaifuAioClient()
     # Get the json that the api return for the waifu tag
-    waifujson= await wf.sfw('waifu', raw = True)
+    waifujson = await wf.sfw("waifu", raw=True)
 
     # Get one random image URL for the waifu tag
-    waifu_url = await wf.sfw('waifu')
+    waifu_url = await wf.sfw("waifu")
 
     # Get 30 images URLs for the waifu tag (12 is the tag ID)
-    waifulist= await wf.nsfw('waifu', many = True)
+    waifulist = await wf.nsfw("waifu", many=True)
 
     # Get one ero image excluding some files and the .gif extension
-    ero = await wf.nsfw('ero', exclude = ['file1', 'file2.png', 'file3.jpeg'], gif = False)
+    ero = await wf.nsfw("ero", exclude=["file1", "file2.png", "file3.jpeg"], gif=False)
 
     # Get your gallery (returns a dict)
-    gallery=await wf.fav(toggle = ['file20'], delete = ['file1'])
+    gallery = await wf.fav(toggle=["file20"], delete=["file1"])
 
     # Get the endpoints
-    endpoints=await wf.endpoints(full=True) #it is optional
+    endpoints = await wf.endpoints(full=True)  # it is optional
 
     # Get some informations about one or multiple images
-    info=await wf.info(images = ["file1.png", "file2"])
+    info = await wf.info(images=["file1.png", "file2"])
 
     # Get the 30 most liked waifu images
-    top=await wf.sfw("waifu", many = True, top = True)
+    top = await wf.sfw("waifu", many=True, top=True)
 
     # Get completely random images, you can use same kwargs as SFW and NSFW
-    random=await wf.random()
+    random = await wf.random()
 
     await wf.close()
+
 
 asyncio.run(main())
 ```
@@ -111,9 +114,11 @@ You can pass some useful kwargs to the class
 ```python
 from waifuim import WaifuAioClient
 
-wf = WaifuAioClient(session = an_aiohttpClientSession_created_asynchronously,
-    appname = "TheNameOfYourApplication",
-    token = "The default token to use in routes requiring authentication.")
+wf = WaifuAioClient(
+    session=an_aiohttpClientSession_created_asynchronously,
+    appname="TheNameOfYourApplication",
+    token="The default token to use in routes requiring authentication.",
+)
 
 # ...
 ```
