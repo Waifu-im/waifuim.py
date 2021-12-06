@@ -23,4 +23,4 @@ SOFTWARE."""
 from .aioclient import WaifuAioClient
 from .exceptions import *
 from .utils import requires_token, APIBaseURL
-from .moduleinfo import __version__,__author__
+from .moduleinfo import __version__, __author__
