@@ -20,29 +20,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
+import contextlib
+from types import TracebackType
 from typing import (
-    Optional,
-    Union,
     Any,
     Dict,
-    List
+    List,
+    Optional,
+    Type,
+    Union,
 )
 
 import aiohttp
 
-from .exceptions import APIException,NoToken
-from .utils import APIBaseURL,requires_token
+from .exceptions import APIException, NoToken
+from .utils import APIBaseURL, requires_token
 from .moduleinfo import __version__
 
 
-class WaifuAioClient:
+class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     def __init__(
         self,
         session: aiohttp.ClientSession = None,
         token: Optional[str] = None,
-        appname = f'aiohttp/{aiohttp.__version__}; waifuim.py/{__version__}'
-
-    ):
+        appname: str = f'aiohttp/{aiohttp.__version__}; waifuim.py/{__version__}',
+    ) -> None:
         """Asynchronous wrapper client for waifu.im API.
         This class is used to interact with the API (http requests).
         Attributes:
@@ -50,24 +52,20 @@ class WaifuAioClient:
             token: your API token.(its optional since you only use it for the private gallery endpoint /fav/)
             appname: the name of your app in the user agent (please use it its easyer to identify you in the logs).
         """
-        self.session=session
-        self.token=token
-        self.appname=appname
-
-    async def __aenter__(self):
-        return self
+        self.session = session
+        self.token = token
+        self.appname = appname
 
     async def __aexit__(
         self,
-        exception_type,
-        exception,
-        exception_traceback
+        exception_type: Type[Exception],
+        exception: Exception,
+        exception_traceback: TracebackType,
     ) -> None:
         await self.close()
 
-
-    def _create_params(self,**kwargs):
-        rt={k:','.join(i) if isinstance(i, list) else str(i) for k,i in kwargs.items() if i}
+    def _create_params(self, **kwargs) -> Optional[Dict[str, str]]:
+        rt = {k: ','.join(i) if isinstance(i, list) else str(i) for k, i in kwargs.items() if i}
         if rt:
             return rt
 
@@ -76,9 +74,9 @@ class WaifuAioClient:
         if self.session is not None:
             await self.session.close()
 
-    async def _get_session(self):
+    async def _get_session(self) -> aiohttp.ClientSession:
         if not self.session:
-            self.session=aiohttp.ClientSession()
+            self.session = aiohttp.ClientSession()
         return self.session
 
     async def _make_request(
@@ -87,13 +85,17 @@ class WaifuAioClient:
         method: str,
         *args,
         **kwargs
-    ):
-        response = await getattr(await self._get_session(), method)(url, *args, **kwargs)
-        infos= await response.json()
-        if response.status==200:
-            return infos
-        else:
-            raise APIException(response.status, infos['message'])
+    ) -> Dict[str, Any]:
+        session = await self._get_session()
+        try:
+            response = await session.request(method, url, *args, **kwargs)
+            infos: Dict[str, Any] = await response.json()
+            if response.status == 200:
+                return infos
+            else:
+                raise APIException(response.status, infos['message'])
+        finally:
+            await response.close()
 
     async def _fetchtag(
         self,
@@ -105,16 +107,14 @@ class WaifuAioClient:
         many,
         top
     ):
-        """process the request for a specific tag and check if everything is correct."""
-        params=self._create_params(exclude = exclude, gif = gif, many = many, top = top)
-        headers=self._create_params(**{'User-Agent': self.appname})
-        type_and_tag="random" if type_ is None or tag is None else type_+"/"+tag
-        infos= await self._make_request(f"{APIBaseURL}{type_and_tag}/", 'get', params = params, headers = headers)
+        """Process the request for a specific tag and check if everything is correct."""
+        params = self._create_params(exclude=exclude, gif=gif, many=many, top=top)
+        headers = self._create_params(**{'User-Agent': self.appname})
+        type_and_tag = "random" if type_ is None or tag is None else type_ + "/" + tag
+        infos = await self._make_request(f"{APIBaseURL}{type_and_tag}/", 'get', params=params, headers=headers)
         if raw:
             return infos
         return [im['url'] for im in infos['images']] if many else infos['images'][0]['url']
-
-
 
     async def random(
         self,
@@ -124,7 +124,7 @@ class WaifuAioClient:
         many: bool = None,
         top: bool = None
     ) -> Dict:
-        """Gets a single or multiple images from the API.            
+        """Gets a single or multiple images from the API.
         Kwargs:
             raw: if whether or not you want the wrapper to return the entire json or just the picture url.
             many: Get multiples images instead of a single one (see the api docs for the exact number).
@@ -136,7 +136,7 @@ class WaifuAioClient:
         Raises:
             APIException: If the API response contains an error.
         """
-        return await self._fetchtag(None,None, raw, exclude, gif, many, top)
+        return await self._fetchtag(None, None, raw, exclude, gif, many, top)
 
     async def sfw(
         self,
@@ -150,7 +150,7 @@ class WaifuAioClient:
         """Gets a single or multiple unique SFW images of the specific category.
         Args:
             tag: The tag to request.
-            
+
         Kwargs:
             raw: if whether or not you want the wrapper to return the entire json or just the picture url.
             many: Get multiples images instead of a single one (see the api docs for the exact number).
@@ -166,16 +166,16 @@ class WaifuAioClient:
 
     async def nsfw(
         self,
-        tag : Union[int, str], raw: bool = False,
-        exclude : List[str] = None,
-        gif : bool = None,
-        many : bool = None,
-        top : bool = None
+        tag: Union[int, str], raw: bool = False,
+        exclude: List[str] = None,
+        gif: bool = None,
+        many: bool = None,
+        top: bool = None
     ) -> Dict:
         """Gets a single or multiple unique NSFW (Not Safe for Work) images of the specific category.
         Args:
             tag: The tag to request.
-            
+
         Kwargs:
             raw: if whether or not you want the wrapper to return the entire json or just the picture url.
             many: Get multiples images instead of a single one (see the api docs for the exact number).
@@ -192,11 +192,11 @@ class WaifuAioClient:
     @requires_token
     async def fav(
         self,
-        user_id : str = None,
-        toggle : List[str] = None,
-        insert : List[str] = None,
-        delete : List[str] = None,
-        token : str = None
+        user_id: str = None,
+        toggle: List[str] = None,
+        insert: List[str] = None,
+        delete: List[str] = None,
+        token: str = None
     ) -> Dict:
         """Get your favorite gallery.""
 
@@ -211,22 +211,22 @@ class WaifuAioClient:
         Raises:
             APIException: If the API response contains an error.
         """
-        params=self._create_params(user_id = user_id, toggle = toggle, insert = insert, delete = delete)
-        headers=self._create_params(**{'User-Agent' : self.appname, 'Authorization' : f'Bearer {token if token else self.token}'})
-        return await self._make_request(f"{APIBaseURL}fav/", 'get', params = params, headers = headers)
+        params = self._create_params(user_id=user_id, toggle=toggle, insert=insert, delete=delete)
+        headers = self._create_params(**{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
+        return await self._make_request(f"{APIBaseURL}fav/", 'get', params=params, headers=headers)
 
-    async def info(self, images : List[str] = None) -> Dict:
+    async def info(self, images: List[str] = None) -> Dict:
         """Fetch the images data (as if you where requesting a gallery containing only those images
         Kwargs:
             images : A list of images filenames to provide.
         Raises:
             APIException: If the API response contains an error.
         """
-        params=self._create_params(images = images)
-        headers=self._create_params(**{'User-Agent':self.appname})
-        return await self._make_request(f"{APIBaseURL}info/", 'get', params = params, headers = headers)
+        params = self._create_params(images=images)
+        headers = self._create_params(**{'User-Agent': self.appname})
+        return await self._make_request(f"{APIBaseURL}info/", 'get', params=params, headers=headers)
 
-    async def endpoints(self, full = False) -> Dict:
+    async def endpoints(self, full=False) -> Dict:
         """Gets the API endpoints.
 
         Kwargs:
@@ -237,9 +237,6 @@ class WaifuAioClient:
         Raises:
             APIException: If the API response contains an error.
         """
-        params=self._create_params(full = full)
-        headers=self._create_params(**{'User-Agent' : self.appname})
-        return await self._make_request(APIBaseURL + 'endpoints/', 'get', headers = headers, params = params)
-
-
-
+        params = self._create_params(full=full)
+        headers = self._create_params(**{'User-Agent': self.appname})
+        return await self._make_request(APIBaseURL + 'endpoints/', 'get', headers=headers, params=params)
