@@ -95,7 +95,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             else:
                 raise APIException(response.status, infos['message'])
         finally:
-            await response.close()
+            response.close()
 
     async def _fetchtag(
         self,
