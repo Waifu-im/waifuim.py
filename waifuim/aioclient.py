@@ -85,10 +85,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         method: str,
         *args,
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
         session = await self._get_session()
         async with session.request(method.upper(), url, *args, **kwargs) as response:
-            infos: Dict[str, Any] = await response.json()
+            infos = await response.json()
             if response.status == 200:
                 return infos
             else:
