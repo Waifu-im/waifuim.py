@@ -87,15 +87,12 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         **kwargs
     ) -> Dict[str, Any]:
         session = await self._get_session()
-        try:
-            response = await session.request(method.upper(), url, *args, **kwargs)
+        async with session.request(method.upper(), url, *args, **kwargs) as response:
             infos: Dict[str, Any] = await response.json()
             if response.status == 200:
                 return infos
             else:
                 raise APIException(response.status, infos['message'])
-        finally:
-            response.close()
 
     async def _fetchtag(
         self,
