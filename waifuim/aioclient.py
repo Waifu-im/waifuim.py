@@ -33,7 +33,7 @@ from typing import (
 
 import aiohttp
 
-from .exceptions import APIException, NoToken
+from .exceptions import APIException
 from .utils import APIBaseURL, requires_token
 from .moduleinfo import __version__
 
@@ -64,13 +64,14 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     ) -> None:
         await self.close()
 
-    def _create_params(self, **kwargs) -> Optional[Dict[str, str]]:
+    @staticmethod
+    def _create_params(**kwargs) -> Optional[Dict[str, str]]:
         rt = {k: ','.join(i) if isinstance(i, list) else str(i) for k, i in kwargs.items() if i}
         if rt:
             return rt
 
     async def close(self) -> None:
-        """Closes the aiohttp session (call it when you're sure you wont do any request anymore)."""
+        """Closes the aiohttp session (call it when you're sure you won't do any request anymore)."""
         if self.session is not None:
             await self.session.close()
 
@@ -116,10 +117,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     async def random(
         self,
         raw: bool = False,
+        many: bool = None,
+        top: bool = None,
         exclude: List[str] = None,
         gif: bool = None,
-        many: bool = None,
-        top: bool = None
     ) -> Dict:
         """Gets a single or multiple images from the API.
         Kwargs:
@@ -127,7 +128,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             many: Get multiples images instead of a single one (see the api docs for the exact number).
             top: Order by most liked image(s).
             exclude: A list of URL's that you do not want to get.
-            gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so if nothing is provided then it is completly random.
+            gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
+            if nothing is provided then it is completly random.
         Returns:
             A single or a list of image URL's.
         Raises:
@@ -139,10 +141,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         self,
         tag: Union[int, str],
         raw: bool = False,
+        many: bool = None,
+        top: bool = None,
         exclude: List[str] = None,
         gif: bool = None,
-        many: bool = None,
-        top: bool = None
     ) -> Dict:
         """Gets a single or multiple unique SFW images of the specific category.
         Args:
@@ -153,7 +155,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             many: Get multiples images instead of a single one (see the api docs for the exact number).
             top: Order by most liked image(s).
             exclude: A list of URL's that you do not want to get.
-            gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so if nothing is provided then it is completly random.
+            gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
+            if nothing is provided then it is completly random.
         Returns:
             A single or a list of image URL's.
         Raises:
@@ -163,11 +166,12 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
 
     async def nsfw(
         self,
-        tag: Union[int, str], raw: bool = False,
+        tag: Union[int, str],
+        raw: bool = False,
+        many: bool = None,
+        top: bool = None,
         exclude: List[str] = None,
         gif: bool = None,
-        many: bool = None,
-        top: bool = None
     ) -> Dict:
         """Gets a single or multiple unique NSFW (Not Safe for Work) images of the specific category.
         Args:
@@ -178,7 +182,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             many: Get multiples images instead of a single one (see the api docs for the exact number).
             top: Order by most liked image(s).
             exclude: A list of URL's that you do not want to get.
-            raw: If False is provided prevent the API to return .gif files, else if True is provided force it to do so if nothing is provided then it is completly random.
+            raw: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
+            if nothing is provided then it is completly random.
         Returns:
             A single or a list of image URL's.
         Raises:
@@ -199,10 +204,11 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
 
         Kwargs:
             user_id: The user's id you want to access the gallery (only for trusted apps).
-            toggle: A list of file names that you want to add if they do not already exist in, else remove, to your gallery in the same time.
+            toggle: A list of file names that you want to add if they do not already exist in, else remove, to your
+            gallery in the same time.
             insert: A list of file names that you want to add to your gallery in the same time.
             delete: A list of file names that you want to remove from your gallery in the same time.
-            token: The token that will be use for this request only, this doesnt change the token you passed in the class.
+            token: The token that will be use for this request only, this doesn't change the token passed in __init__.
         Returns:
             A dictionnary containing the json the API returned.
         Raises:
@@ -227,7 +233,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         """Gets the API endpoints.
 
         Kwargs:
-            full: if whether or not you want the wrapper to return the endpoints with all the tag informations or just the availiables tag.
+            full: if whether you want the wrapper to return the endpoints with all the tag information or just the
+            available tags.
 
         Returns:
             A dictionnary containing the API endpoints.
