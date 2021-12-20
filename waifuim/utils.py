@@ -22,7 +22,8 @@ SOFTWARE."""
 
 from .exceptions import NoToken
 
-APIBaseURL="https://api.waifu.im/"
+APIBaseURL = "https://api.waifu.im/"
+
 
 def requires_token(func):
     """A decorator used to check if the user passed a token before trying to use the fav method."""

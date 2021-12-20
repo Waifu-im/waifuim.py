@@ -20,25 +20,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
+
 class WaifuException(Exception):
     """Base exception class for the wrapper."""
 
+
 class APIException(WaifuException):
     """Exception due to an error response from waifu.im API."""
-    def __init__(self, status : int, message : str) -> None:
+
+    def __init__(self, status: int, message: str) -> None:
         """Initializes the APIException.
         Args:
             status: HTTP status code of the response.
             message: The response message.
         """
         super().__init__(f'{status}: {message}')
-        self.status=status
-        self.message=message
-        
+        self.status = status
+        self.message = message
+
 
 class NoToken(WaifuException):
     """Exception raised when the user try to request the gallery route with no token"""
-    def __init__(self, message = f'You tried to request the gallery route with no token. Please pass your token to WaifuAioClient'):
+
+    def __init__(self, message=f'You tried to request the gallery route with no token. Please pass your token to WaifuAioClient'):
         super().__init__(message)
         self.message = message
-        
