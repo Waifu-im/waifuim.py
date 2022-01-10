@@ -230,6 +230,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         headers = self._create_params(**{'User-Agent': self.appname})
         return await self._make_request(f"{APIBaseURL}info/", 'get', params=params, headers=headers)
 
+    @requires_token
     async def report(
             self,
             image: str,
@@ -246,7 +247,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             APIException: If the API response contains an error.
         """
         params = self._create_params(image=image, description=description, user_id=user_id)
-        headers = self._create_params(**{'User-Agent': self.appname})
+        headers = self._create_params(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
         return await self._make_request(f"{APIBaseURL}report/", 'get', params=params, headers=headers)
 
     async def endpoints(self, full=False) -> Dict:
