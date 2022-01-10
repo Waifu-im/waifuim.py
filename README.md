@@ -43,7 +43,7 @@ async def main():
         waifu_url = await wf.sfw("waifu")
 
         # Get 30 images URLs for the waifu tag (12 is the tag ID)
-        waifulist = await wf.nsfw(12, many=True)
+        waifulist = await wf.sfw(12, many=True)
 
         # Get one ero image excluding some files and the .gif extension
         ero = await wf.nsfw("ero", exclude=["file1", "file2.png"], gif=False)
@@ -82,7 +82,7 @@ async def main():
     waifu_url = await wf.sfw("waifu")
 
     # Get 30 images URLs for the waifu tag (12 is the tag ID)
-    waifulist = await wf.nsfw("waifu", many=True)
+    waifulist = await wf.sfw(12, many=True)
 
     # Get one ero image excluding some files and the .gif extension
     ero = await wf.nsfw("ero", exclude=["file1", "file2.png", "file3.jpeg"], gif=False)
@@ -96,8 +96,8 @@ async def main():
     # Get some informations about one or multiple images
     info = await wf.info(images=["file1.png", "file2"])
 
-    # Get the 30 most liked waifu images
-    top = await wf.sfw("waifu", many=True, top=True)
+    # Get the 30 most liked maid images
+    top = await wf.sfw("maid", many=True, top=True)
 
     # Get completely random images, you can use same kwargs as SFW and NSFW
     random = await wf.random()
