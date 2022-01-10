@@ -92,7 +92,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             if response.status == 204:
                 return
             infos = await response.json()
-            if response.status == 200:
+            if response.status in {200,201}:
                 return infos
             else:
                 raise APIException(response.status, infos['message'])
