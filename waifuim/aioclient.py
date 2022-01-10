@@ -40,10 +40,10 @@ from .moduleinfo import __version__
 
 class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     def __init__(
-        self,
-        session: aiohttp.ClientSession = None,
-        token: Optional[str] = None,
-        appname: str = f'aiohttp/{aiohttp.__version__}; waifuim.py/{__version__}',
+            self,
+            session: aiohttp.ClientSession = None,
+            token: Optional[str] = None,
+            appname: str = f'aiohttp/{aiohttp.__version__}; waifuim.py/{__version__}',
     ) -> None:
         """Asynchronous wrapper client for waifu.im API.
         This class is used to interact with the API (http requests).
@@ -57,10 +57,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         self.appname = appname
 
     async def __aexit__(
-        self,
-        exception_type: Type[Exception],
-        exception: Exception,
-        exception_traceback: TracebackType,
+            self,
+            exception_type: Type[Exception],
+            exception: Exception,
+            exception_traceback: TracebackType,
     ) -> None:
         await self.close()
 
@@ -81,14 +81,16 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         return self.session
 
     async def _make_request(
-        self,
-        url: str,
-        method: str,
-        *args,
-        **kwargs
+            self,
+            url: str,
+            method: str,
+            *args,
+            **kwargs,
     ) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
         session = await self._get_session()
         async with session.request(method.upper(), url, *args, **kwargs) as response:
+            if response.status == 201:
+                return
             infos = await response.json()
             if response.status == 200:
                 return infos
@@ -96,14 +98,14 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                 raise APIException(response.status, infos['message'])
 
     async def _fetchtag(
-        self,
-        type_,
-        tag,
-        raw,
-        exclude,
-        gif,
-        many,
-        top
+            self,
+            type_,
+            tag,
+            raw,
+            exclude,
+            gif,
+            many,
+            top,
     ):
         """Process the request for a specific tag and check if everything is correct."""
         params = self._create_params(exclude=exclude, gif=gif, many=many, top=top)
@@ -115,12 +117,12 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         return [im['url'] for im in infos['images']] if many else infos['images'][0]['url']
 
     async def random(
-        self,
-        raw: bool = False,
-        many: bool = None,
-        top: bool = None,
-        exclude: List[str] = None,
-        gif: bool = None,
+            self,
+            raw: bool = False,
+            many: bool = None,
+            top: bool = None,
+            exclude: List[str] = None,
+            gif: bool = None,
     ) -> Dict:
         """Gets a single or multiple images from the API.
         Kwargs:
@@ -138,18 +140,17 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         return await self._fetchtag(None, None, raw, exclude, gif, many, top)
 
     async def sfw(
-        self,
-        tag: Union[int, str],
-        raw: bool = False,
-        many: bool = None,
-        top: bool = None,
-        exclude: List[str] = None,
-        gif: bool = None,
+            self,
+            tag: Union[int, str],
+            raw: bool = False,
+            many: bool = None,
+            top: bool = None,
+            exclude: List[str] = None,
+            gif: bool = None,
     ) -> Dict:
         """Gets a single or multiple unique SFW images of the specific category.
         Args:
             tag: The tag to request.
-
         Kwargs:
             raw: if whether or not you want the wrapper to return the entire json or just the picture url.
             many: Get multiples images instead of a single one (see the api docs for the exact number).
@@ -165,27 +166,26 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         return await self._fetchtag('sfw', tag, raw, exclude, gif, many, top)
 
     async def nsfw(
-        self,
-        tag: Union[int, str],
-        raw: bool = False,
-        many: bool = None,
-        top: bool = None,
-        exclude: List[str] = None,
-        gif: bool = None,
+            self,
+            tag: Union[int, str],
+            raw: bool = False,
+            many: bool = None,
+            top: bool = None,
+            exclude: List[str] = None,
+            gif: bool = None,
     ) -> Dict:
         """Gets a single or multiple unique NSFW (Not Safe for Work) images of the specific category.
         Args:
             tag: The tag to request.
-
         Kwargs:
-            raw: if whether or not you want the wrapper to return the entire json or just the picture url.
+            raw: If whether you want the wrapper to return the entire json or just the picture url.
             many: Get multiples images instead of a single one (see the api docs for the exact number).
             top: Order by most liked image(s).
-            exclude: A list of URL's that you do not want to get.
+            exclude: A list of URLs that you do not want to get.
             raw: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
-            if nothing is provided then it is completly random.
+            if nothing is provided then it is completely random.
         Returns:
-            A single or a list of image URL's.
+            A single or a list of image URLs.
         Raises:
             APIException: If the API response contains an error.
         """
@@ -193,12 +193,12 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
 
     @requires_token
     async def fav(
-        self,
-        user_id: str = None,
-        toggle: List[str] = None,
-        insert: List[str] = None,
-        delete: List[str] = None,
-        token: str = None
+            self,
+            user_id: str = None,
+            toggle: List[str] = None,
+            insert: List[str] = None,
+            delete: List[str] = None,
+            token: str = None,
     ) -> Dict:
         """Get your favorite gallery.""
 
@@ -210,16 +210,17 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             delete: A list of file names that you want to remove from your gallery in the same time.
             token: The token that will be use for this request only, this doesn't change the token passed in __init__.
         Returns:
-            A dictionnary containing the json the API returned.
+            A dictionary containing the json the API returned.
         Raises:
             APIException: If the API response contains an error.
         """
         params = self._create_params(user_id=user_id, toggle=toggle, insert=insert, delete=delete)
-        headers = self._create_params(**{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
+        headers = self._create_params(
+            **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/", 'get', params=params, headers=headers)
 
     async def info(self, images: List[str] = None) -> Dict:
-        """Fetch the images data (as if you where requesting a gallery containing only those images
+        """Fetch the images' data (as if you were requesting a gallery containing only those images)
         Kwargs:
             images : A list of images filenames to provide.
         Raises:
@@ -229,6 +230,25 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         headers = self._create_params(**{'User-Agent': self.appname})
         return await self._make_request(f"{APIBaseURL}info/", 'get', params=params, headers=headers)
 
+    async def report(
+            self,
+            image: str,
+            description: str = None,
+            user_id: str = None,
+    ) -> Dict:
+        """Report an image and returns the report information
+        Args:
+            image: The image to report.
+        Kwargs:
+            description: The optional reason why to report the image.
+            user_id: The report author.
+        Raises:
+            APIException: If the API response contains an error.
+        """
+        params = self._create_params(image=image, description=description, user_id=user_id)
+        headers = self._create_params(**{'User-Agent': self.appname})
+        return await self._make_request(f"{APIBaseURL}report/", 'get', params=params, headers=headers)
+
     async def endpoints(self, full=False) -> Dict:
         """Gets the API endpoints.
 
@@ -237,7 +257,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             available tags.
 
         Returns:
-            A dictionnary containing the API endpoints.
+            A dictionary containing the API endpoints.
         Raises:
             APIException: If the API response contains an error.
         """
