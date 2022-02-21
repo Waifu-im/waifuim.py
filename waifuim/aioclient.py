@@ -36,7 +36,7 @@ import aiohttp
 from .exceptions import APIException
 from .utils import APIBaseURL, requires_token
 from .moduleinfo import __version__
-from.exceptions import NoToken
+from .exceptions import NoToken
 
 
 class WaifuAioClient(contextlib.AbstractAsyncContextManager):
@@ -67,7 +67,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
 
     @staticmethod
     def _create_params(**kwargs) -> Optional[Dict[str, str]]:
-        rt = {k: i for k, i in kwargs.items() if i}
+        rt = {k: str(i) for k, i in kwargs.items() if i or isinstance(i, bool)}
         if rt:
             return rt
 
@@ -137,7 +137,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                                      order_by=order_by,
                                      gif=gif,
                                      full=full
-        )
+                                     )
         headers = self._create_params(**{'User-Agent': self.appname})
         if full:
             if not token and not self.token:
