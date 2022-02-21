@@ -66,10 +66,21 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         await self.close()
 
     @staticmethod
-    def _create_params(**kwargs) -> Optional[Dict[str, str]]:
+    def _create_headers(**kwargs) -> Optional[Dict[str, str]]:
         rt = {k: str(i) for k, i in kwargs.items() if i or isinstance(i, bool)}
         if rt:
             return rt
+
+    @staticmethod
+    def _create_params(**kwargs) -> Optional[Dict[str, str]]:
+        string = ''
+        first = True
+        for k, i in kwargs.items():
+            if i or isinstance(i, bool):
+                string += '?' if first else '&'
+                first = False
+                string += k + '=' + i
+        return string
 
     async def close(self) -> None:
         """Closes the aiohttp session (call it when you're sure you won't do any request anymore)."""
@@ -138,12 +149,12 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                                      gif=gif,
                                      full=full
                                      )
-        headers = self._create_params(**{'User-Agent': self.appname})
+        headers = self._create_headers(**{'User-Agent': self.appname})
         if full:
             if not token and not self.token:
                 raise NoToken(message="the 'full' query string is only accessible to admins and needs a token")
             headers += {'Authorization': f'Bearer {token if token else self.token}'}
-        infos = await self._make_request(f"{APIBaseURL}random/", 'get', params=params, headers=headers)
+        infos = await self._make_request(f"{APIBaseURL}random/+{params}", 'get', headers=headers)
         if raw:
             return infos
         return [im['url'] for im in infos['images']] if many else infos['images'][0]['url']
@@ -172,9 +183,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             APIException: If the API response contains an error.
         """
         params = self._create_params(user_id=user_id, toggle=toggle, insert=insert, delete=delete)
-        headers = self._create_params(
+        headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
-        return await self._make_request(f"{APIBaseURL}fav/", 'get', params=params, headers=headers)
+        return await self._make_request(f"{APIBaseURL}fav/{params}", 'get', headers=headers)
 
     async def info(self, images: List[str]) -> Dict:
         """Fetch the images' data (as if you were requesting a gallery containing only those images)
@@ -184,8 +195,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             APIException: If the API response contains an error.
         """
         params = self._create_params(images=images)
-        headers = self._create_params(**{'User-Agent': self.appname})
-        return await self._make_request(f"{APIBaseURL}info/", 'get', params=params, headers=headers)
+        headers = self._create_headers(**{'User-Agent': self.appname})
+        return await self._make_request(f"{APIBaseURL}info/{params}", 'get', headers=headers)
 
     @requires_token
     async def report(
@@ -204,8 +215,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             APIException: If the API response contains an error.
         """
         params = self._create_params(image=image, description=description, user_id=user_id)
-        headers = self._create_params(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
-        return await self._make_request(f"{APIBaseURL}report/", 'get', params=params, headers=headers)
+        headers = self._create_headers(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
+        return await self._make_request(f"{APIBaseURL}report/{params}", 'get', headers=headers)
 
     async def endpoints(self, full=False) -> Dict:
         """Gets the API endpoints.
@@ -220,5 +231,5 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             APIException: If the API response contains an error.
         """
         params = self._create_params(full=full)
-        headers = self._create_params(**{'User-Agent': self.appname})
-        return await self._make_request(APIBaseURL + 'endpoints/', 'get', headers=headers, params=params)
+        headers = self._create_headers(**{'User-Agent': self.appname})
+        return await self._make_request(APIBaseURL + f'endpoints/{params}', 'get', headers=headers)
