@@ -44,17 +44,23 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             session: aiohttp.ClientSession = None,
             token: Optional[str] = None,
             appname: str = f'aiohttp/{aiohttp.__version__}; waifuim.py/{__version__}',
+            close_session_automatically: bool = True,
     ) -> None:
         """Asynchronous wrapper client for waifu.im API.
         This class is used to interact with the API (http requests).
         Attributes:
             session: An aiohttp session.
             token: your API token.(its optional since you only use it for the private gallery endpoint /fav/)
-            appname: the name of your app in the user agent (please use it its easyer to identify you in the logs).
+            appname: the name of your app in the user agent (please use it its easier to identify you in the logs).
+            close_session_automatically: automatically close the provided session when exiting the context manager
         """
+        if session is None and not close_session_automatically:
+            raise RuntimeError("close_session_automatically must be True when a custom session is not provided")
+
         self.session = session
         self.token = token
         self.appname = appname
+        self._close_session_automatically = close_session_automatically
 
     async def __aexit__(
             self,
@@ -62,7 +68,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             exception: Exception,
             exception_traceback: TracebackType,
     ) -> None:
-        await self.close()
+        if self._close_session_automatically:
+            await self.close()
 
     @staticmethod
     def _create_params(**kwargs) -> Optional[Dict[str, str]]:
