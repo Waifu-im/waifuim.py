@@ -71,18 +71,17 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         if rt:
             return rt
 
-    def _create_params(self, first_str='?', **kwargs) -> Optional[Dict[str, str]]:
-        string = ''
-        first = True
+    @staticmethod
+    def _create_params(first_str='?', **kwargs) -> Optional[Dict[str, str]]:
+        rt = []
         for k, i in kwargs.items():
             if isinstance(i, list):
                 for item in i:
-                    string += self._create_params(first_str='', **{k: item})
-            elif i or isinstance(i, bool):
-                string += first_str if first else '&'
-                first = False
-                string += str(k) + '=' + str(i)
-        return string
+                    rt.append((k, str(item)))
+            if i or isinstance(i, bool):
+                rt.append((k, str(i)))
+        if rt:
+            return rt
 
     async def close(self) -> None:
         """Closes the aiohttp session (call it when you're sure you won't do any request anymore)."""
@@ -156,7 +155,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             if not token and not self.token:
                 raise NoToken(message="the 'full' query string is only accessible to admins and needs a token")
             headers += {'Authorization': f'Bearer {token if token else self.token}'}
-        infos = await self._make_request(f"{APIBaseURL}random/+{params}", 'get', headers=headers)
+        infos = await self._make_request(f"{APIBaseURL}random/", 'get', params=params, headers=headers)
         if raw:
             return infos
         return [im['url'] for im in infos['images']] if many else infos['images'][0]['url']
@@ -187,7 +186,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         params = self._create_params(user_id=user_id, toggle=toggle, insert=insert, delete=delete)
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
-        return await self._make_request(f"{APIBaseURL}fav/{params}", 'get', headers=headers)
+        return await self._make_request(f"{APIBaseURL}fav/", 'get', params=params, headers=headers)
 
     async def info(self, images: List[str]) -> Dict:
         """Fetch the images' data (as if you were requesting a gallery containing only those images)
@@ -198,7 +197,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         """
         params = self._create_params(images=images)
         headers = self._create_headers(**{'User-Agent': self.appname})
-        return await self._make_request(f"{APIBaseURL}info/{params}", 'get', headers=headers)
+        return await self._make_request(f"{APIBaseURL}info/", 'get', params=params, headers=headers)
 
     @requires_token
     async def report(
@@ -218,7 +217,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         """
         params = self._create_params(image=image, description=description, user_id=user_id)
         headers = self._create_headers(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
-        return await self._make_request(f"{APIBaseURL}report/{params}", 'get', headers=headers)
+        return await self._make_request(f"{APIBaseURL}report/", 'get', params=params, headers=headers)
 
     async def endpoints(self, full=False) -> Dict:
         """Gets the API endpoints.
@@ -234,4 +233,4 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         """
         params = self._create_params(full=full)
         headers = self._create_headers(**{'User-Agent': self.appname})
-        return await self._make_request(APIBaseURL + f'endpoints/{params}', 'get', headers=headers)
+        return await self._make_request(APIBaseURL + f'endpoints/', 'get', params=params, headers=headers)
