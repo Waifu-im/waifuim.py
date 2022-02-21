@@ -78,7 +78,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             if isinstance(i, list):
                 for item in i:
                     rt.append((k, str(item)))
-            if i or isinstance(i, bool):
+            elif i or isinstance(i, bool):
                 rt.append((k, str(i)))
         if rt:
             return rt
