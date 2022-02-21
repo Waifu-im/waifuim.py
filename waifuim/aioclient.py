@@ -71,13 +71,15 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         if rt:
             return rt
 
-    @staticmethod
-    def _create_params(**kwargs) -> Optional[Dict[str, str]]:
+    def _create_params(self, first_str='?', **kwargs) -> Optional[Dict[str, str]]:
         string = ''
         first = True
         for k, i in kwargs.items():
-            if i or isinstance(i, bool):
-                string += '?' if first else '&'
+            if i and isinstance(i, list):
+                for item in i:
+                    string += self._create_params(first_str='', **{k: item})
+            elif i or isinstance(i, bool):
+                string += first_str if first else '&'
                 first = False
                 string += k + '=' + i
         return string
