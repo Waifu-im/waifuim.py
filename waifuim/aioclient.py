@@ -75,13 +75,13 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         string = ''
         first = True
         for k, i in kwargs.items():
-            if i and isinstance(i, list):
+            if isinstance(i, list):
                 for item in i:
                     string += self._create_params(first_str='', **{k: item})
             elif i or isinstance(i, bool):
                 string += first_str if first else '&'
                 first = False
-                string += k + '=' + i
+                string += str(k) + '=' + str(i)
         return string
 
     async def close(self) -> None:
