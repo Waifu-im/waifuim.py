@@ -154,7 +154,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         if full:
             if not token and not self.token:
                 raise NoToken(message="the 'full' query string is only accessible to admins and needs a token")
-            headers += {'Authorization': f'Bearer {token if token else self.token}'}
+            headers.update({'Authorization': f'Bearer {token if token else self.token}'})
         infos = await self._make_request(f"{APIBaseURL}random/", 'get', params=params, headers=headers)
         if raw:
             return infos
