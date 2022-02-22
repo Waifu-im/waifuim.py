@@ -34,34 +34,17 @@ from waifuim import WaifuAioClient
 
 
 async def main():
+    # Depending on your usage of the Wrapper It's recommended to store the Client and not to open a session each time.
     async with WaifuAioClient() as wf:
-
-        # Get the json that the api return for the waifu tag
-        waifujson = await wf.sfw("waifu", raw=True)
-
-        # Get one random image URL for the waifu tag
-        waifu_url = await wf.sfw("waifu")
-
-        # Get 30 images URLs for the waifu tag (12 is the tag ID)
-        waifulist = await wf.sfw(12, many=True)
-
-        # Get one ero image excluding some files and the .gif extension
-        ero = await wf.nsfw("ero", exclude=["file1", "file2.png"], gif=False)
-
-        # Get your gallery (returns a dict)
-        gallery = await wf.fav(toggle=["file20"], insert=["file1"], token="A token")
-
-        # Get the endpoints
-        endpoints = await wf.endpoints(full=True)  # it is optional
-
-        # Get some informations about one or multiple images
-        info = await wf.info(images=["file1.png", "file2"])
-
-        # Get the 30 most liked waifu images
-        top = await wf.sfw("waifu", many=True, top=True)
-
-        # Get completely random images, you can use same kwargs as SFW and NSFW
-        random = await wf.random()
+        # Get a completely random image
+        image = await wf.random()
+        # Get an image by tags
+        image = await wf.random(selected_tags=['waifu','maid'],excluded_tags=['ero'],excluded_files=['file1.notneeded'])
+        # Get sfw waifu images ordered by FAVOURITES
+        images = await wf.random(selected_tags=['waifu'],is_nsfw=['False'],many=True,order_by='FAVOURITES')
+        # Get a user favourites images
+        favs = await wf.fav(token='The user token if no token is provided it use the one in the client constructor')
+        
 
 
 asyncio.run(main())
@@ -75,33 +58,14 @@ from waifuim import WaifuAioClient
 
 async def main():
     wf = WaifuAioClient()
-    # Get the json that the api return for the waifu tag
-    waifujson = await wf.sfw("waifu", raw=True)
-
-    # Get one random image URL for the waifu tag
-    waifu_url = await wf.sfw("waifu")
-
-    # Get 30 images URLs for the waifu tag (12 is the tag ID)
-    waifulist = await wf.sfw(12, many=True)
-
-    # Get one ero image excluding some files and the .gif extension
-    ero = await wf.nsfw("ero", exclude=["file1", "file2.png", "file3.jpeg"], gif=False)
-
-    # Get your gallery (returns a dict)
-    gallery = await wf.fav(toggle=["file20"], delete=["file1"])
-
-    # Get the endpoints
-    endpoints = await wf.endpoints(full=True)  # it is optional
-
-    # Get some informations about one or multiple images
-    info = await wf.info(images=["file1.png", "file2"])
-
-    # Get the 30 most liked maid images
-    top = await wf.sfw("maid", many=True, top=True)
-
-    # Get completely random images, you can use same kwargs as SFW and NSFW
-    random = await wf.random()
-
+    # Get a completely random image
+    image = await wf.random()
+    # Get an image by tags
+    image = await wf.random(selected_tags=['waifu','maid'],excluded_tags=['ero'])
+    # Get sfw waifu images ordered by FAVOURITES
+    images = await wf.random(selected_tags=['waifu'],is_nsfw=['False'],many=True,order_by='FAVOURITES')
+    # Get a user favourites images
+    favs = await wf.fav(token='The user token if no token is provided it use the one in the client constructor')
     await wf.close()
 
 

@@ -36,6 +36,7 @@ import aiohttp
 from .exceptions import APIException
 from .utils import APIBaseURL, requires_token
 from .moduleinfo import __version__
+from .exceptions import NoToken
 
 
 class WaifuAioClient(contextlib.AbstractAsyncContextManager):
@@ -72,8 +73,20 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             await self.close()
 
     @staticmethod
-    def _create_params(**kwargs) -> Optional[Dict[str, str]]:
-        rt = {k: ','.join(i) if isinstance(i, list) else str(i) for k, i in kwargs.items() if i}
+    def _create_headers(**kwargs) -> Optional[Dict[str, str]]:
+        rt = {k: str(i) for k, i in kwargs.items() if i or isinstance(i, bool)}
+        if rt:
+            return rt
+
+    @staticmethod
+    def _create_params(first_str='?', **kwargs) -> Optional[Dict[str, str]]:
+        rt = []
+        for k, i in kwargs.items():
+            if isinstance(i, list):
+                for item in i:
+                    rt.append((k, str(item)))
+            elif i or isinstance(i, bool):
+                rt.append((k, str(i)))
         if rt:
             return rt
 
@@ -99,104 +112,65 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             if response.status == 204:
                 return
             infos = await response.json()
-            if response.status in {200,201}:
+            if response.status in {200, 201}:
                 return infos
+            elif response.status == 422:
+                raise APIException(
+                    response.status,
+                    f'Error at {infos["detail"][0]["loc"][1]}: {infos["detail"][0]["msg"]}'
+                )
             else:
                 raise APIException(response.status, infos['message'])
 
-    async def _fetchtag(
-            self,
-            type_,
-            tag,
-            raw,
-            exclude,
-            gif,
-            many,
-            top,
-    ):
-        """Process the request for a specific tag and check if everything is correct."""
-        params = self._create_params(exclude=exclude, gif=gif, many=many, top=top)
-        headers = self._create_params(**{'User-Agent': self.appname})
-        type_and_tag = "random" if type_ is None or tag is None else type_ + "/" + tag
-        infos = await self._make_request(f"{APIBaseURL}{type_and_tag}/", 'get', params=params, headers=headers)
-        if raw:
-            return infos
-        return [im['url'] for im in infos['images']] if many else infos['images'][0]['url']
-
     async def random(
             self,
-            raw: bool = False,
+            selected_tags: List[str] = None,
+            excluded_tags: List[str] = None,
+            excluded_files: List[str] = None,
+            is_nsfw: bool = None,
             many: bool = None,
-            top: bool = None,
-            exclude: List[str] = None,
+            order_by: str = None,
             gif: bool = None,
+            full: str = None,
+            token: str = None,
+            raw: bool = False,
     ) -> Dict:
         """Gets a single or multiple images from the API.
         Kwargs:
-            raw: if whether or not you want the wrapper to return the entire json or just the picture url.
+            selected_tags : The tag(s) that you want to select
+            excluded_tags: The tag(s) that you want to exclude
+            excluded_files: A list of files that you do not want to get.
+            is_nsfw: If False is provided prevent the API to return nsfw files, else if True is provided force it to do
+            so, if nothing (or None) is provided then no filter is applied.
             many: Get multiples images instead of a single one (see the api docs for the exact number).
-            top: Order by most liked image(s).
-            exclude: A list of URL's that you do not want to get.
+            order_by: Order the images according to the value given (see the docs for the accepted values)
             gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
-            if nothing is provided then it is completly random.
-        Returns:
-            A single or a list of image URL's.
-        Raises:
-            APIException: If the API response contains an error.
-        """
-        return await self._fetchtag(None, None, raw, exclude, gif, many, top)
-
-    async def sfw(
-            self,
-            tag: Union[int, str],
-            raw: bool = False,
-            many: bool = None,
-            top: bool = None,
-            exclude: List[str] = None,
-            gif: bool = None,
-    ) -> Dict:
-        """Gets a single or multiple unique SFW images of the specific category.
-        Args:
-            tag: The tag to request.
-        Kwargs:
-            raw: if whether or not you want the wrapper to return the entire json or just the picture url.
-            many: Get multiples images instead of a single one (see the api docs for the exact number).
-            top: Order by most liked image(s).
-            exclude: A list of URL's that you do not want to get.
-            gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
-            if nothing is provided then it is completly random.
-        Returns:
-            A single or a list of image URL's.
-        Raises:
-            APIException: If the API response contains an error.
-        """
-        return await self._fetchtag('sfw', tag, raw, exclude, gif, many, top)
-
-    async def nsfw(
-            self,
-            tag: Union[int, str],
-            raw: bool = False,
-            many: bool = None,
-            top: bool = None,
-            exclude: List[str] = None,
-            gif: bool = None,
-    ) -> Dict:
-        """Gets a single or multiple unique NSFW (Not Safe for Work) images of the specific category.
-        Args:
-            tag: The tag to request.
-        Kwargs:
-            raw: If whether you want the wrapper to return the entire json or just the picture url.
-            many: Get multiples images instead of a single one (see the api docs for the exact number).
-            top: Order by most liked image(s).
-            exclude: A list of URLs that you do not want to get.
-            raw: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
-            if nothing is provided then it is completely random.
+            if nothing (or None) is provided then no filter is applied.
+            full: Do not limit the result length (only for admins)
+            raw: whether you want the wrapper to return the entire json or just the picture url.
         Returns:
             A single or a list of image URLs.
         Raises:
             APIException: If the API response contains an error.
         """
-        return await self._fetchtag('nsfw', tag, raw, exclude, gif, many, top)
+        params = self._create_params(selected_tags=selected_tags,
+                                     excluded_tags=excluded_tags,
+                                     excluded_files=excluded_files,
+                                     is_nsfw=is_nsfw,
+                                     many=many,
+                                     order_by=order_by,
+                                     gif=gif,
+                                     full=full
+                                     )
+        headers = self._create_headers(**{'User-Agent': self.appname})
+        if full:
+            if not token and not self.token:
+                raise NoToken(message="the 'full' query string is only accessible to admins and needs a token")
+            headers.update({'Authorization': f'Bearer {token if token else self.token}'})
+        infos = await self._make_request(f"{APIBaseURL}random/", 'get', params=params, headers=headers)
+        if raw:
+            return infos
+        return [im['url'] for im in infos['images']] if many else infos['images'][0]['url']
 
     @requires_token
     async def fav(
@@ -222,19 +196,19 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             APIException: If the API response contains an error.
         """
         params = self._create_params(user_id=user_id, toggle=toggle, insert=insert, delete=delete)
-        headers = self._create_params(
+        headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/", 'get', params=params, headers=headers)
 
-    async def info(self, images: List[str] = None) -> Dict:
+    async def info(self, images: List[str]) -> Dict:
         """Fetch the images' data (as if you were requesting a gallery containing only those images)
-        Kwargs:
+        args:
             images : A list of images filenames to provide.
         Raises:
             APIException: If the API response contains an error.
         """
         params = self._create_params(images=images)
-        headers = self._create_params(**{'User-Agent': self.appname})
+        headers = self._create_headers(**{'User-Agent': self.appname})
         return await self._make_request(f"{APIBaseURL}info/", 'get', params=params, headers=headers)
 
     @requires_token
@@ -254,7 +228,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             APIException: If the API response contains an error.
         """
         params = self._create_params(image=image, description=description, user_id=user_id)
-        headers = self._create_params(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
+        headers = self._create_headers(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
         return await self._make_request(f"{APIBaseURL}report/", 'get', params=params, headers=headers)
 
     async def endpoints(self, full=False) -> Dict:
@@ -270,5 +244,5 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             APIException: If the API response contains an error.
         """
         params = self._create_params(full=full)
-        headers = self._create_params(**{'User-Agent': self.appname})
-        return await self._make_request(APIBaseURL + 'endpoints/', 'get', headers=headers, params=params)
+        headers = self._create_headers(**{'User-Agent': self.appname})
+        return await self._make_request(APIBaseURL + f'endpoints/', 'get', params=params, headers=headers)
