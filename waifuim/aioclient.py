@@ -107,6 +107,11 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             infos = await response.json()
             if response.status in {200, 201}:
                 return infos
+            elif response.status == 422:
+                raise APIException(
+                    response.status,
+                    f'Error at {infos["detail"][0]["loc"][1]}: {infos["detail"][0]["msg"]}'
+                )
             else:
                 raise APIException(response.status, infos['message'])
 
