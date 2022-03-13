@@ -163,7 +163,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         infos = await self._make_request(f"{APIBaseURL}random/", 'get', params=params, headers=headers)
         if raw:
             return infos
-        return [im['url'] for im in infos['images']] if many else infos['images'][0]['url']
+        urls = [im['url'] for im in infos['images']]
+        return urls[0] if len(urls) == 1 else urls
 
     @requires_token
     async def fav(
