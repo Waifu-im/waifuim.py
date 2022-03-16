@@ -231,8 +231,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
+        params = self._create_params(full=True)
         headers = self._create_headers(**{'User-Agent': self.appname})
-        results = await self._make_request(APIBaseURL + f'endpoints/', 'get', headers=headers)
+        results = await self._make_request(APIBaseURL + f'endpoints/', 'get', params=params, headers=headers)
         tags = []
         for k, v in results:
             tags.append(Tag(v))
