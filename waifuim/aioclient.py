@@ -140,6 +140,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
             if nothing (or None) is provided then no filter is applied.
             full: Do not limit the result length (only for admins)
+            raw : If True return the raw result.
         Returns:
             A single or a list of Image (find it in types.py).
         Raises:
