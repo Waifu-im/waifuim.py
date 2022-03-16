@@ -126,6 +126,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             gif: bool = None,
             full: str = None,
             token: str = None,
+            raw: bool = False,
     ) -> Union[List[Image], Image]:
         """Gets a single or multiple images from the API.
         Kwargs:
@@ -159,6 +160,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                 raise NoToken(message="the 'full' query string is only accessible to admins and needs a token")
             headers.update({'Authorization': f'Bearer {token if token else self.token}'})
         infos = await self._make_request(f"{APIBaseURL}random/", 'get', params=params, headers=headers)
+        if raw:
+            return infos
         images = [Image(im) for im in infos['images']]
         if len(images) > 1:
             return images
