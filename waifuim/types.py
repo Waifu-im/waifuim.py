@@ -23,7 +23,7 @@ class Image:
         self.uploaded_at = parse(self.uploaded_at)
 
     def __str__(self):
-        return self.file
+        return self.url
 
     def __eq__(self, other):
         return isinstance(other, Image) and self.file == other.file
