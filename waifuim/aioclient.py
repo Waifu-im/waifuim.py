@@ -236,7 +236,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         results = await self._make_request(APIBaseURL + f'endpoints/', 'get', params=params, headers=headers)
         tags = []
         for k, v in results.items():
-            tags.append(Tag(v))
+            for tag_infos in v:
+                tags.append(Tag(tag_infos))
         return tags
 
     async def endpoints(self, full=False) -> Dict:
