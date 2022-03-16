@@ -66,13 +66,13 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         await self.close()
 
     @staticmethod
-    def _create_headers(**kwargs) -> Optional[Dict[str, str]]:
+    def _create_headers(**kwargs) -> Optional[Dict]:
         rt = {k: str(i) for k, i in kwargs.items() if i or isinstance(i, bool)}
         if rt:
             return rt
 
     @staticmethod
-    def _create_params(**kwargs) -> Optional[Dict[str]]:
+    def _create_params(**kwargs) -> Optional[Dict]:
         rt = []
         for k, i in kwargs.items():
             if isinstance(i, list):
@@ -99,7 +99,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             method: str,
             *args,
             **kwargs,
-    ) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
+    ) -> Dict:
         session = await self._get_session()
         async with session.request(method.upper(), url, *args, **kwargs) as response:
             if response.status == 204:
