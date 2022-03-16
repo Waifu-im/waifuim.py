@@ -235,7 +235,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         headers = self._create_headers(**{'User-Agent': self.appname})
         results = await self._make_request(APIBaseURL + f'endpoints/', 'get', params=params, headers=headers)
         tags = []
-        for k, v in results:
+        for k, v in results.items():
             tags.append(Tag(v))
         return tags
 
