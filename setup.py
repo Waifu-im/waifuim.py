@@ -1,5 +1,6 @@
 import re
 from setuptools import setup
+
 with open('waifuim/moduleinfo.py', 'r') as f:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
 
@@ -21,7 +22,7 @@ setup(
     long_description=readme,
     long_description_content_type='text/markdown',
     python_requires='>=3.6',
-    install_requires=['aiohttp'],
+    install_requires=['aiohttp', 'python-dateutil'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',

@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 import contextlib
-from types import TracebackType
+from .types import Image, Tag
 from typing import (
     Any,
     Dict,
@@ -61,7 +61,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             self,
             exception_type: Type[Exception],
             exception: Exception,
-            exception_traceback: TracebackType,
+            exception_traceback,
     ) -> None:
         await self.close()
 
@@ -72,7 +72,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             return rt
 
     @staticmethod
-    def _create_params(first_str='?', **kwargs) -> Optional[Dict[str, str]]:
+    def _create_params(**kwargs) -> Optional[Dict[str]]:
         rt = []
         for k, i in kwargs.items():
             if isinstance(i, list):
@@ -120,29 +120,27 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             selected_tags: List[str] = None,
             excluded_tags: List[str] = None,
             excluded_files: List[str] = None,
-            is_nsfw: bool = None,
+            is_nsfw: Union[bool, str] = None,
             many: bool = None,
             order_by: str = None,
             gif: bool = None,
             full: str = None,
             token: str = None,
-            raw: bool = False,
-    ) -> Dict:
+    ) -> Union[List[Image], Image]:
         """Gets a single or multiple images from the API.
         Kwargs:
             selected_tags : The tag(s) that you want to select
             excluded_tags: The tag(s) that you want to exclude
             excluded_files: A list of files that you do not want to get.
             is_nsfw: If False is provided prevent the API to return nsfw files, else if True is provided force it to do
-            so, if nothing (or None) is provided then no filter is applied.
+            so, if 'null' is provided it's random (Default fixed by the API, see the documentation).
             many: Get multiples images instead of a single one (see the api docs for the exact number).
             order_by: Order the images according to the value given (see the docs for the accepted values)
             gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
             if nothing (or None) is provided then no filter is applied.
             full: Do not limit the result length (only for admins)
-            raw: whether you want the wrapper to return the entire json or just the picture url.
         Returns:
-            A single or a list of image URLs.
+            A single or a list of Image (find it in types.py).
         Raises:
             APIException: If the API response contains an error.
         """
@@ -161,9 +159,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                 raise NoToken(message="the 'full' query string is only accessible to admins and needs a token")
             headers.update({'Authorization': f'Bearer {token if token else self.token}'})
         infos = await self._make_request(f"{APIBaseURL}random/", 'get', params=params, headers=headers)
-        if raw:
-            return infos
-        return [im['url'] for im in infos['images']] if many else infos['images'][0]['url']
+        images = [Image(im) for im in infos['images']]
+        if len(images) > 1:
+            return images
+        return images[0]
 
     @requires_token
     async def fav(
@@ -174,7 +173,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             delete: List[str] = None,
             token: str = None,
     ) -> Dict:
-        """Get your favorite gallery.""
+        """Get your favourite gallery.""
 
         Kwargs:
             user_id: The user's id you want to access the gallery (only for trusted apps).
@@ -193,7 +192,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/", 'get', params=params, headers=headers)
 
-    async def info(self, images: List[str]) -> Dict:
+    async def info(self, images: List[str]) -> List[Image]:
         """Fetch the images' data (as if you were requesting a gallery containing only those images)
         args:
             images : A list of images filenames to provide.
@@ -202,7 +201,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         """
         params = self._create_params(images=images)
         headers = self._create_headers(**{'User-Agent': self.appname})
-        return await self._make_request(f"{APIBaseURL}info/", 'get', params=params, headers=headers)
+        infos = await self._make_request(f"{APIBaseURL}info/", 'get', params=params, headers=headers)
+        return [Image(im) for im in infos['images']]
 
     @requires_token
     async def report(
@@ -224,13 +224,25 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         headers = self._create_headers(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
         return await self._make_request(f"{APIBaseURL}report/", 'get', params=params, headers=headers)
 
+    async def tags(self) -> List[Tag]:
+        """Gets the API endpoints, same as endpoints method but returns a list of Tag (see types.py).
+        Returns:
+            A list of Tag.
+        Raises:
+            APIException: If the API response contains an error.
+        """
+        headers = self._create_headers(**{'User-Agent': self.appname})
+        results = await self._make_request(APIBaseURL + f'endpoints/', 'get', headers=headers)
+        tags = []
+        for k, v in results:
+            tags.append(Tag(v))
+        return tags
+
     async def endpoints(self, full=False) -> Dict:
         """Gets the API endpoints.
-
         Kwargs:
             full: if whether you want the wrapper to return the endpoints with all the tag information or just the
             available tags.
-
         Returns:
             A dictionary containing the API endpoints.
         Raises:
