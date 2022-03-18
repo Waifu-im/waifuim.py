@@ -259,16 +259,20 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/toggle/", 'post', params=params, headers=headers)
 
-    async def info(self, images: List[str]) -> List[Image]:
+    async def info(self, images: List[str],raw=False) -> List[Image]:
         """Fetch the images' data (as if you were requesting a gallery containing only those images)
         args:
             images : A list of images filenames to provide.
+        Kwargs:
+            raw : If True return the raw result.
         Raises:
             APIException: If the API response contains an error.
         """
         params = self._create_params(images=images)
         headers = self._create_headers(**{'User-Agent': self.appname})
         infos = await self._make_request(f"{APIBaseURL}info/", 'get', params=params, headers=headers)
+        if raw:
+            return infos
         return [Image(im) for im in infos['images']]
 
     @requires_token
