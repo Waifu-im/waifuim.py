@@ -71,13 +71,14 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         if rt:
             return rt
 
-    @staticmethod
-    def _create_params(**kwargs) -> Optional[Dict]:
+    def _create_params(self, **kwargs) -> Optional[Dict]:
         rt = []
         for k, i in kwargs.items():
             if isinstance(i, list):
                 for item in i:
-                    rt.append((k, str(item)))
+                    rt.append(self._create_params(i))
+            elif isinstance(i, Image):
+                rt.append((k, i.file))
             elif i or isinstance(i, bool):
                 rt.append((k, str(i)))
         if rt:
@@ -172,29 +173,91 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     async def fav(
             self,
             user_id: str = None,
-            toggle: List[str] = None,
-            insert: List[str] = None,
-            delete: List[str] = None,
             token: str = None,
     ) -> Dict:
         """Get your favourite gallery.""
 
         Kwargs:
             user_id: The user's id you want to access the gallery (only for trusted apps).
-            toggle: A list of file names that you want to add if they do not already exist in, else remove, to your
-            gallery in the same time.
-            insert: A list of file names that you want to add to your gallery in the same time.
-            delete: A list of file names that you want to remove from your gallery in the same time.
             token: The token that will be use for this request only, this doesn't change the token passed in __init__.
         Returns:
             A dictionary containing the json the API returned.
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._create_params(user_id=user_id, toggle=toggle, insert=insert, delete=delete)
+        params = self._create_params(user_id=user_id)
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/", 'get', params=params, headers=headers)
+
+    @requires_token
+    async def fav_delete(
+            self,
+            image: str,
+            user_id: str = None,
+            token: str = None,
+    ) -> Dict:
+        """Remove an image from the user gallery.""
+
+        Args:
+            image: the file that you want to remove from the gallery.
+        Kwargs:
+            user_id: The user's id you want to access the gallery (only for trusted apps).
+            token: The token that will be use for this request only, this doesn't change the token passed in __init__.
+        Returns:
+            None
+        Raises:
+            APIException: If the API response contains an error.
+        """
+        params = self._create_params(user_id=user_id, image=image)
+        headers = self._create_headers(
+            **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
+        return await self._make_request(f"{APIBaseURL}fav/delete/", 'delete', params=params, headers=headers)
+
+    @requires_token
+    async def fav_insert(
+            self,
+            image: str,
+            user_id: str = None,
+            token: str = None,
+    ) -> Dict:
+        """Add an image to the user gallery.""
+        Args:
+            image: the file that you want to add to the gallery.
+        Kwargs:
+            user_id: The user's id you want to access the gallery (only for trusted apps).
+            token: The token that will be use for this request only, this doesn't change the token passed in __init__.
+        Returns:
+            None
+        Raises:
+            APIException: If the API response contains an error.
+        """
+        params = self._create_params(user_id=user_id, image=image)
+        headers = self._create_headers(
+            **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
+        return await self._make_request(f"{APIBaseURL}fav/insert/", 'post', params=params, headers=headers)
+
+    @requires_token
+    async def fav_toggle(
+            self,
+            image: str,
+            user_id: str = None,
+            token: str = None,
+    ) -> Dict:
+        """Remove or add an image to the user gallery, depending on if it is already in.""
+
+        Kwargs:
+            user_id: The user's id you want to access the gallery (only for trusted apps).
+            token: The token that will be use for this request only, this doesn't change the token passed in __init__.
+        Returns:
+            A dictionary containing the json the API returned.
+        Raises:
+            APIException: If the API response contains an error.
+        """
+        params = self._create_params(user_id=user_id, image=image)
+        headers = self._create_headers(
+            **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
+        return await self._make_request(f"{APIBaseURL}fav/toggle/", 'post', params=params, headers=headers)
 
     async def info(self, images: List[str]) -> List[Image]:
         """Fetch the images' data (as if you were requesting a gallery containing only those images)
