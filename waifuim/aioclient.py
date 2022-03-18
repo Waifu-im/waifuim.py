@@ -76,7 +76,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         for k, i in kwargs.items():
             if isinstance(i, list):
                 for item in i:
-                    rt.append(self._create_params(i))
+                    rt.append(self._create_params(item))
             elif isinstance(i, Image):
                 rt.append((k, i.file))
             elif i or isinstance(i, bool):
