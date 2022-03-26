@@ -114,7 +114,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                     f'Error at {infos["detail"][0]["loc"][1]}: {infos["detail"][0]["msg"]}'
                 )
             else:
-                raise APIException(response.status, infos['message'])
+                raise APIException(response.status, infos['detail'])
 
     async def random(
             self,
@@ -159,7 +159,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         headers = self._create_headers(**{'User-Agent': self.appname})
         if full:
             if not token and not self.token:
-                raise NoToken(message="the 'full' query string is only accessible to admins and needs a token")
+                raise NoToken(detail="the 'full' query string is only accessible to admins and needs a token")
             headers.update({'Authorization': f'Bearer {token if token else self.token}'})
         infos = await self._make_request(f"{APIBaseURL}random/", 'get', params=params, headers=headers)
         if raw:

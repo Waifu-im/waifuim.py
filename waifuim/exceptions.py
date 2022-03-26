@@ -28,21 +28,21 @@ class WaifuException(Exception):
 class APIException(WaifuException):
     """Exception due to an error response from waifu.im API."""
 
-    def __init__(self, status: int, message: str) -> None:
+    def __init__(self, status: int, detail: str) -> None:
         """Initializes the APIException.
         Args:
             status: HTTP status code of the response.
-            message: The response message.
+            detail: The response detail.
         """
-        super().__init__(f'{status}: {message}')
+        super().__init__(f'{status}: {detail}')
         self.status = status
-        self.message = message
+        self.detail = detail
 
 
 class NoToken(WaifuException):
     """Exception raised when the user try to request the gallery route with no token"""
 
-    def __init__(self, message=f'You tried to request the gallery route with no token.'
+    def __init__(self, detail=f'You tried to request the gallery route with no token.'
                                'Please pass your token to WaifuAioClient'):
-        super().__init__(message)
-        self.message = message
+        super().__init__(detail)
+        self.detail = detail
