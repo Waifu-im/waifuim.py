@@ -72,15 +72,16 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         if rt:
             return rt
 
-    def _create_params(self, **kwargs) -> Optional[Dict]:
+    @staticmethod
+    def _create_params(**kwargs) -> Optional[Dict]:
         rt = {}
         for k, i in kwargs.items():
             if isinstance(i, Iterable):
-                rt.update({k:list(i)})
+                rt.update({k: list(i)})
             elif isinstance(i, Image):
-                rt.update({k:i.file})
+                rt.update({k: i.file})
             elif i or isinstance(i, bool):
-                rt.update({k:str(i)})
+                rt.update({k: str(i)})
         if rt:
             return rt
 
@@ -259,7 +260,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/toggle/", 'post', params=params, headers=headers)
 
-    async def info(self, images: List[str],raw=False) -> List[Image]:
+    async def info(self, images: List[str], raw=False) -> List[Image]:
         """Fetch the images' data (as if you were requesting a gallery containing only those images)
         args:
             images : A list of images filenames to provide.
