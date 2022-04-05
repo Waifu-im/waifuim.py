@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 import contextlib
-from collections.abc import Iterable
 from .types import Image, Tag
 from typing import (
     Any,
@@ -76,7 +75,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     def _create_params(**kwargs) -> Optional[Dict]:
         rt = {}
         for k, i in kwargs.items():
-            if isinstance(i, Iterable):
+            if isinstance(i, (list, tuple, set)):
                 rt.update({k: list(i)})
             elif isinstance(i, Image):
                 rt.update({k: i.file})
