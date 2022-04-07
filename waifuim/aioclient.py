@@ -124,6 +124,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             is_nsfw: Union[bool, str] = None,
             many: bool = None,
             order_by: str = None,
+            orientation: str = None,
             gif: bool = None,
             full: str = None,
             token: str = None,
@@ -138,6 +139,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             so, if 'null' is provided it's random (Default fixed by the API, see the documentation).
             many: Get multiples images instead of a single one (see the api docs for the exact number).
             order_by: Order the images according to the value given (see the docs for the accepted values)
+            orientation: Choose the images orientation according to the value given (see the docs for the accepted values)
             gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
             if nothing (or None) is provided then no filter is applied.
             full: Do not limit the result length (only for admins)
@@ -153,6 +155,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                                      is_nsfw=is_nsfw,
                                      many=many,
                                      order_by=order_by,
+                                     orientation=orientation,
                                      gif=gif,
                                      full=full
                                      )
