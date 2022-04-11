@@ -129,7 +129,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             full: str = None,
             token: str = None,
             raw: bool = False,
-    ) -> Union[List[Image], Image]:
+    ) -> Union[List[Image], Image, Dict]:
         """Gets a single or multiple images from the API.
         Kwargs:
             selected_tags : The tag(s) that you want to select
@@ -176,22 +176,55 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     async def fav(
             self,
             user_id: str = None,
+            selected_tags: List[str] = None,
+            excluded_tags: List[str] = None,
+            excluded_files: List[str] = None,
+            is_nsfw: Union[bool, str] = None,
+            many: bool = None,
+            order_by: str = None,
+            orientation: str = None,
+            gif: bool = None,
             token: str = None,
-    ) -> Dict:
+            raw: bool = False,
+    ) -> Union[List[Image], Dict]:
         """Get your favourite gallery.""
 
         Kwargs:
             user_id: The user's id you want to access the gallery (only for trusted apps).
+            selected_tags : The tag(s) that you want to select
+            excluded_tags: The tag(s) that you want to exclude
+            excluded_files: A list of files that you do not want to get.
+            is_nsfw: If False is provided prevent the API to return nsfw files, else if True is provided force it to do
+            so, if 'null' is provided it's random (Default fixed by the API, see the documentation).
+            many: Get multiples images instead of a single one (see the api docs for the exact number).
+            order_by: Order the images according to the value given (see the docs for the accepted values)
+            orientation: Choose the images orientation according to the value given (see the docs for the accepted values)
+            gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
+            if nothing (or None) is provided then no filter is applied.
             token: The token that will be use for this request only, this doesn't change the token passed in __init__.
+            raw : If True return the raw result.
         Returns:
             A dictionary containing the json the API returned.
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._create_params(user_id=user_id)
+        params = self._create_params(user_id=user_id,
+                                     selected_tags=selected_tags,
+                                     excluded_tags=excluded_tags,
+                                     excluded_files=excluded_files,
+                                     is_nsfw=is_nsfw,
+                                     many=many,
+                                     order_by=order_by,
+                                     orientation=orientation,
+                                     gif=gif,
+                                     )
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
-        return await self._make_request(f"{APIBaseURL}fav/", 'get', params=params, headers=headers)
+
+        infos = await self._make_request(f"{APIBaseURL}fav/", 'get', params=params, headers=headers)
+        if raw:
+            return infos
+        return [Image(im) for im in infos['images']]
 
     @requires_token
     async def fav_delete(
