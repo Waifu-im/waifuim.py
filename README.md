@@ -41,7 +41,7 @@ async def main():
         # Get an image by tags
         image = await wf.random(selected_tags=['waifu','maid'],excluded_tags=['ero'],excluded_files=['file1.notneeded'])
         # Get sfw waifu images ordered by FAVOURITES
-        images = await wf.random(selected_tags=['waifu'],is_nsfw=['False'],many=True,order_by='FAVOURITES')
+        images = await wf.random(selected_tags=['waifu'],is_nsfw=False,many=True,order_by='FAVOURITES')
         # Get a user favourites images
         favs = await wf.fav(token='The user token if no token is provided it use the one in the client constructor')
         
@@ -63,7 +63,7 @@ async def main():
     # Get an image by tags
     image = await wf.random(selected_tags=['waifu','maid'],excluded_tags=['ero'])
     # Get sfw waifu images ordered by FAVOURITES
-    images = await wf.random(selected_tags=['waifu'],is_nsfw=['False'],many=True,order_by='FAVOURITES')
+    images = await wf.random(selected_tags=['waifu'],is_nsfw='null',many=True,order_by='FAVOURITES')
     # Get a user favourites images
     favs = await wf.fav(token='The user token if no token is provided it use the one in the client constructor')
     await wf.close()
