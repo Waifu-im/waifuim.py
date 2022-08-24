@@ -25,6 +25,7 @@ $ pip install git+https://github.com/Waifu-im/waifuim.py
 
 ## Usage
 For now, you can only use WaifuAioClient which is async. Maybe a sync client will be released in the future.
+Most of the methods returns an Image instance, the attributes are the same from the ones returned by the API.
 
 ### Examples with WaifuAioClient
 ```python
