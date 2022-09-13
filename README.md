@@ -86,7 +86,7 @@ image.image_id
 >>> 1982
 
 image.tags[0]
->>> <waifuim.types.Tag object at 0x76217ccf10>
+>>> <waifuim.types.Tag object at 0x73214ccf10>
 ```
 
 ### Some useful kwargs in the constructor
