@@ -33,49 +33,58 @@ import asyncio
 
 from waifuim import WaifuAioClient
 
-
 async def main():
-    # Depending on your usage of the Wrapper It's recommended to store the Client and not to open a session each time.
-    async with WaifuAioClient() as wf:
-        # Get a completely random image
-        image = await wf.random()
-        # Get an image by tags
-        image = await wf.random(selected_tags=['waifu','maid'],excluded_tags=['ero'],excluded_files=['file1.notneeded'])
-        # Get sfw waifu images ordered by FAVOURITES
-        images = await wf.random(selected_tags=['waifu'],is_nsfw=False,many=True,order_by='FAVOURITES')
-        # Get a user favourites images
-        favs = await wf.fav(token='The user token if no token is provided it use the one in the client constructor')
-        
 
-
-asyncio.run(main())
-```
-
-```python
-import asyncio
-
-from waifuim import WaifuAioClient
-
-
-async def main():
     wf = WaifuAioClient()
+    
     # Get a completely random image
     image = await wf.random()
+    
     # Get an image by tags
     image = await wf.random(selected_tags=['waifu','maid'],excluded_tags=['ero'])
+    
     # Get sfw waifu images ordered by FAVOURITES
     images = await wf.random(selected_tags=['waifu'],is_nsfw='null',many=True,order_by='FAVOURITES')
-    # Get a user favourites images
+    
+    # Get a user favourites
     favs = await wf.fav(token='The user token if no token is provided it use the one in the client constructor')
+    
+    # Edit your favourites
+    await wf.fav_delete('aa48cd9dc6b64367.jpg')
+    await wf.fav_insert('aa48cd9dc6b64367',user_id=11243585148445,token='user_id and token are optional')
+    fav_state = await wf.toggle('aa48cd9dc6b64367.jpg')
+    # fav_state wil be equal to 'INSERTED' or 'DELETED'
+    
+    # Get information about one or multiple pictures (can also provide the image ID instead of file name)
+    information = await wf.info(['aa48cd9dc6b64367.jpg',1982])
+ 
     await wf.close()
-
+    
+    # You can also use a context manager but for multiple request it is not recommended
+    
+    async with WaifuAioClient() as wf:
+        # Do your stuff
 
 asyncio.run(main())
 ```
 
-### Some interesting attributes
-You can pass some useful kwargs to the class
+### The Image and Tag instance
+In most of the case the methods will return a class instance.
+It has, as its attributes, the keys from the json that the api returns.
+Here is a quick example.
+```python
 
+image = await wf.random()
+>>> <waifuim.types.Image object at 0x76217ccf10>
+
+str(image)
+>>> 'https://cdn.waifu.im/aa48cd9dc6b64367jpg'
+
+image.tags[0]
+>>> <waifuim.types.Tag object at 0x76217ccf10>
+```
+
+### Some useful kwargs in the constructor
 ```python
 from waifuim import WaifuAioClient
 
