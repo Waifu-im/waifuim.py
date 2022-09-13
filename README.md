@@ -69,16 +69,21 @@ asyncio.run(main())
 ```
 
 ### The Image and Tag instance
-In most of the case the methods will return a class instance.
-It has, as its attributes, the keys from the json that the api returns.
-Here is a quick example.
+In most of the case the methods will return an Image instance.
+The attributes are the same as the json keys that the api returns.
 ```python
 
 image = await wf.random()
 >>> <waifuim.types.Image object at 0x76217ccf10>
 
+image.url
+>>> 'https://cdn.waifu.im/aa48cd9dc6b64367jpg'
+
 str(image)
 >>> 'https://cdn.waifu.im/aa48cd9dc6b64367jpg'
+
+image.image_id
+>>> 1982
 
 image.tags[0]
 >>> <waifuim.types.Tag object at 0x76217ccf10>
