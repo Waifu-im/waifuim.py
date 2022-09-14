@@ -50,13 +50,13 @@ async def main():
     favs = await wf.fav(token='The user token if no token is provided it use the one in the client constructor')
     
     # Edit your favourites
-    await wf.fav_delete('aa48cd9dc6b64367.jpg')
-    await wf.fav_insert('aa48cd9dc6b64367',user_id=11243585148445,token='user_id and token are optional')
-    fav_state = await wf.toggle('aa48cd9dc6b64367.jpg')
+    await wf.fav_delete('3133.extension')
+    await wf.fav_insert('3133',user_id=11243585148445,token='user_id and token are optional')
+    fav_state = await wf.toggle('4401')
     # fav_state wil be equal to 'INSERTED' or 'DELETED'
     
-    # Get information about one or multiple pictures (can also provide the image ID instead of file name)
-    information = await wf.info(['aa48cd9dc6b64367.jpg',1982])
+    # Get information about one or multiple pictures (can also provide the image signature instead of file/image_id)
+    information = await wf.info(['5f7e656343cb7be1',1982])
  
     await wf.close()
     
@@ -77,13 +77,13 @@ image = await wf.random()
 >>> <waifuim.types.Image object at 0x76217ccf10>
 
 image.url
->>> 'https://cdn.waifu.im/aa48cd9dc6b64367jpg'
+>>> 'https://cdn.waifu.im/1982.jpg'
 
 str(image)
->>> 'https://cdn.waifu.im/aa48cd9dc6b64367jpg'
+>>> 'https://cdn.waifu.im/1982.jpg'
 
-image.image_id
->>> 1982
+image.signature
+>>> aa48cd9dc6b64367
 
 image.tags[0]
 >>> <waifuim.types.Tag object at 0x73214ccf10>
