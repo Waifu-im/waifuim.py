@@ -319,17 +319,21 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         headers = self._create_headers(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
         return await self._make_request(f"{APIBaseURL}report", 'post', json=params, headers=headers)
 
-    async def tags(self, full=False) -> dict | list[Tag]:
+    async def tags(self, full=False, raw=False) -> dict | list[Tag]:
         """Gets the API endpoints, same as endpoints method but returns a list of Tag (see types.py).
         Returns:
             A list of Tag.
+        Kwargs:
+            full: returns detailed information on the tag
+            raw: returns the raw data from the api
         Raises:
             APIException: If the API response contains an error.
+
         """
         params = self._create_params(full=full)
         headers = self._create_headers(**{'User-Agent': self.appname})
         results = await self._make_request(APIBaseURL + f'tags', 'get', params=params, headers=headers)
-        if not full:
+        if not full or raw:
             return results
         tags = []
         for k, v in results.items():
