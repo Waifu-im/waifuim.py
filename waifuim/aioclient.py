@@ -72,6 +72,12 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             return rt
 
     @staticmethod
+    def _prepare_json(**kwargs) -> Optional[Dict]:
+        rt = {k: i for k, i in kwargs.items() if i is not None}
+        if rt:
+            return rt
+
+    @staticmethod
     def _create_params(**kwargs) -> Optional[Dict]:
         rt = {}
         for k, i in kwargs.items():
@@ -98,28 +104,23 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             self,
             url: str,
             method: str,
-            *args,
             **kwargs,
-    ) -> Dict:
+    ) -> Dict | None:
         session = await self._get_session()
-        async with session.request(method.upper(), url, *args, **kwargs) as response:
+        async with session.request(method.upper(), url, **kwargs) as response:
             if response.status == 204:
                 return
             infos = await response.json()
             if response.status in {200, 201}:
                 return infos
-            elif response.status == 422:
-                raise APIException(
-                    response.status,
-                    f'Error at {infos["detail"][0]["loc"][1]}: {infos["detail"][0]["msg"]}'
-                )
             else:
                 raise APIException(response.status, infos['detail'])
 
-    async def random(
+    async def search(
             self,
-            selected_tags: List[str] = None,
+            included_tags: List[str] = None,
             excluded_tags: List[str] = None,
+            included_files: List[str] = None,
             excluded_files: List[str] = None,
             is_nsfw: Union[bool, str] = None,
             many: bool = None,
@@ -132,7 +133,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     ) -> Union[List[Image], Image, Dict]:
         """Gets a single or multiple images from the API.
         Kwargs:
-            selected_tags : The tag(s) that you want to select
+            included_tags : The tag(s) that you want to select
             excluded_tags: The tag(s) that you want to exclude
             excluded_files: A list of files that you do not want to get.
             is_nsfw: If False is provided prevent the API to return nsfw files, else if True is provided force it to do
@@ -149,8 +150,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._create_params(selected_tags=selected_tags,
+        params = self._create_params(included_tags=included_tags,
                                      excluded_tags=excluded_tags,
+                                     included_files=included_files,
                                      excluded_files=excluded_files,
                                      is_nsfw=is_nsfw,
                                      many=many,
@@ -164,7 +166,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             if not token and not self.token:
                 raise NoToken(detail="the 'full' query string is only accessible to admins and needs a token")
             headers.update({'Authorization': f'Bearer {token if token else self.token}'})
-        infos = await self._make_request(f"{APIBaseURL}random/", 'get', params=params, headers=headers)
+        infos = await self._make_request(f"{APIBaseURL}search", 'get', params=params, headers=headers)
         if raw:
             return infos
         images = [Image(im) for im in infos['images']]
@@ -175,9 +177,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     @requires_token
     async def fav(
             self,
-            user_id: str = None,
-            selected_tags: List[str] = None,
+            user_id: int = None,
+            included_tags: List[str] = None,
             excluded_tags: List[str] = None,
+            included_files: List[str] = None,
             excluded_files: List[str] = None,
             is_nsfw: Union[bool, str] = None,
             many: bool = None,
@@ -191,7 +194,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
 
         Kwargs:
             user_id: The user's id you want to access the gallery (only for trusted apps).
-            selected_tags : The tag(s) that you want to select
+            included_tags : The tag(s) that you want to select
             excluded_tags: The tag(s) that you want to exclude
             excluded_files: A list of files that you do not want to get.
             is_nsfw: If False is provided prevent the API to return nsfw files, else if True is provided force it to do
@@ -209,8 +212,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             APIException: If the API response contains an error.
         """
         params = self._create_params(user_id=user_id,
-                                     selected_tags=selected_tags,
+                                     included_tags=included_tags,
                                      excluded_tags=excluded_tags,
+                                     included_files=included_files,
                                      excluded_files=excluded_files,
                                      is_nsfw=is_nsfw,
                                      many=many,
@@ -221,7 +225,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
 
-        infos = await self._make_request(f"{APIBaseURL}fav/", 'get', params=params, headers=headers)
+        infos = await self._make_request(f"{APIBaseURL}fav", 'get', params=params, headers=headers)
         if raw:
             return infos
         return [Image(im) for im in infos['images']]
@@ -229,14 +233,14 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     @requires_token
     async def fav_delete(
             self,
-            image: str,
-            user_id: str = None,
+            image_id: int,
+            user_id: int = None,
             token: str = None,
     ) -> Dict:
         """Remove an image from the user gallery.""
 
         Args:
-            image: the file that you want to remove from the gallery.
+            image_id: the file that you want to remove from the gallery.
         Kwargs:
             user_id: The user's id you want to access the gallery (only for trusted apps).
             token: The token that will be use for this request only, this doesn't change the token passed in __init__.
@@ -245,21 +249,21 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._create_params(user_id=user_id, image=image)
+        params = self._prepare_json(user_id=user_id, image_id=image_id)
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
-        return await self._make_request(f"{APIBaseURL}fav/delete/", 'delete', params=params, headers=headers)
+        return await self._make_request(f"{APIBaseURL}fav/delete", 'delete', json=params, headers=headers)
 
     @requires_token
     async def fav_insert(
             self,
-            image: str,
-            user_id: str = None,
+            image_id: int,
+            user_id: int = None,
             token: str = None,
     ) -> Dict:
         """Add an image to the user gallery.""
         Args:
-            image: the file that you want to add to the gallery.
+            image_id: the file that you want to add to the gallery.
         Kwargs:
             user_id: The user's id you want to access the gallery (only for trusted apps).
             token: The token that will be use for this request only, this doesn't change the token passed in __init__.
@@ -268,16 +272,16 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._create_params(user_id=user_id, image=image)
+        params = self._prepare_json(user_id=user_id, image_id=image_id)
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
-        return await self._make_request(f"{APIBaseURL}fav/insert/", 'post', params=params, headers=headers)
+        return await self._make_request(f"{APIBaseURL}fav/insert", 'post', json=params, headers=headers)
 
     @requires_token
     async def fav_toggle(
             self,
-            image: str,
-            user_id: str = None,
+            image_id: int,
+            user_id: int = None,
             token: str = None,
     ) -> Dict:
         """Remove or add an image to the user gallery, depending on if it is already in.""
@@ -290,73 +294,45 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._create_params(user_id=user_id, image=image)
+        params = self._prepare_json(user_id=user_id, image_id=image_id)
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
-        return await self._make_request(f"{APIBaseURL}fav/toggle/", 'post', params=params, headers=headers)
-
-    async def info(self, images: List[str], raw=False) -> List[Image]:
-        """Fetch the images' data (as if you were requesting a gallery containing only those images)
-        args:
-            images : A list of images filenames to provide.
-        Kwargs:
-            raw : If True return the raw result.
-        Raises:
-            APIException: If the API response contains an error.
-        """
-        params = self._create_params(images=images)
-        headers = self._create_headers(**{'User-Agent': self.appname})
-        infos = await self._make_request(f"{APIBaseURL}info/", 'get', params=params, headers=headers)
-        if raw:
-            return infos
-        return [Image(im) for im in infos['images']]
+        return await self._make_request(f"{APIBaseURL}fav/toggle", 'post', json=params, headers=headers)
 
     @requires_token
     async def report(
             self,
-            image: str,
+            image_id: int,
             description: str = None,
-            user_id: str = None,
+            user_id: int = None,
     ) -> Dict:
         """Report an image and returns the report information
         Args:
-            image: The image to report.
+            image_id: The image to report.
         Kwargs:
             description: The optional reason why to report the image.
             user_id: The report author.
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._create_params(image=image, description=description, user_id=user_id)
+        params = self._prepare_json(image=image_id, description=description, user_id=user_id)
         headers = self._create_headers(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
-        return await self._make_request(f"{APIBaseURL}report/", 'get', params=params, headers=headers)
+        return await self._make_request(f"{APIBaseURL}report", 'post', json=params, headers=headers)
 
-    async def tags(self) -> List[Tag]:
+    async def tags(self, full=False) -> dict | list[Tag]:
         """Gets the API endpoints, same as endpoints method but returns a list of Tag (see types.py).
         Returns:
             A list of Tag.
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._create_params(full=True)
+        params = self._create_params(full=full)
         headers = self._create_headers(**{'User-Agent': self.appname})
-        results = await self._make_request(APIBaseURL + f'endpoints/', 'get', params=params, headers=headers)
+        results = await self._make_request(APIBaseURL + f'tags', 'get', params=params, headers=headers)
+        if not full:
+            return results
         tags = []
         for k, v in results.items():
             for tag_infos in v:
                 tags.append(Tag(tag_infos))
         return tags
-
-    async def endpoints(self, full=False) -> Dict:
-        """Gets the API endpoints.
-        Kwargs:
-            full: if whether you want the wrapper to return the endpoints with all the tag information or just the
-            available tags.
-        Returns:
-            A dictionary containing the API endpoints.
-        Raises:
-            APIException: If the API response contains an error.
-        """
-        params = self._create_params(full=full)
-        headers = self._create_headers(**{'User-Agent': self.appname})
-        return await self._make_request(APIBaseURL + f'endpoints/', 'get', params=params, headers=headers)

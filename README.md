@@ -38,25 +38,22 @@ async def main():
     wf = WaifuAioClient()
     
     # Get a completely random image
-    image = await wf.random()
+    image = await wf.search()
     
     # Get an image by tags
-    image = await wf.random(selected_tags=['waifu','maid'],excluded_tags=['ero'])
+    image = await wf.search(included_tags=['waifu','maid'],excluded_tags=['ero'])
     
     # Get sfw waifu images ordered by FAVOURITES
-    images = await wf.random(selected_tags=['waifu'],is_nsfw='null',many=True,order_by='FAVOURITES')
+    images = await wf.search(included_tags=['waifu'],is_nsfw='null',many=True,order_by='FAVOURITES')
     
     # Get a user favourites
     favs = await wf.fav(token='The user token if no token is provided it use the one in the client constructor')
     
     # Edit your favourites
-    await wf.fav_delete('3133.extension')
-    await wf.fav_insert('3133',user_id=11243585148445,token='user_id and token are optional')
-    fav_state = await wf.toggle('4401')
+    await wf.fav_delete(3133)
+    await wf.fav_insert(3133,user_id=11243585148445,token='user_id and token are optional')
+    fav_state = await wf.fav_toggle(4401)
     # fav_state wil be equal to 'INSERTED' or 'DELETED'
-    
-    # Get information about one or multiple pictures (can also provide the image signature instead of file/image_id)
-    information = await wf.info(['5f7e656343cb7be1',1982])
  
     await wf.close()
     
@@ -73,7 +70,7 @@ In most of the case the methods will return an Image instance.
 The attributes are the same as the json keys that the api returns.
 ```python
 
-image = await wf.random()
+image = await wf.search()
 >>> <waifuim.types.Image object at 0x76217ccf10>
 
 image.url
