@@ -249,7 +249,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(user_id=user_id, image_id=image_id)
+        params = self._prepare_json(user_id=int(user_id), image_id=int(image_id))
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/delete", 'delete', json=params, headers=headers)
@@ -272,7 +272,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(user_id=user_id, image_id=image_id)
+        params = self._prepare_json(user_id=int(user_id), image_id=int(image_id))
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/insert", 'post', json=params, headers=headers)
@@ -294,7 +294,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(user_id=user_id, image_id=image_id)
+        params = self._prepare_json(user_id=int(user_id), image_id=int(image_id))
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/toggle", 'post', json=params, headers=headers)
@@ -315,7 +315,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(image=image_id, description=description, user_id=user_id)
+        params = self._prepare_json(image=int(image_id), description=description, user_id=int(user_id))
         headers = self._create_headers(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
         return await self._make_request(f"{APIBaseURL}report", 'post', json=params, headers=headers)
 
