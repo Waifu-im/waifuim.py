@@ -25,7 +25,7 @@ $ pip install git+https://github.com/Waifu-im/waifuim.py
 
 ## Usage
 For now, you can only use WaifuAioClient which is async. Maybe a sync client will be released in the future.
-Most of the methods returns an Image instance, the attributes are the same from the ones returned by the API.
+Most of the methods returns an `Image` instance, the attributes are the same from the ones returned by the API.
 
 ### Examples with WaifuAioClient
 ```python
@@ -41,19 +41,33 @@ async def main():
     image = await wf.search()
     
     # Get an image by tags
-    image = await wf.search(included_tags=['waifu','maid'],excluded_tags=['ero'])
+    image = await wf.search(
+        included_tags=['waifu','maid'],
+        excluded_tags=['ero'],
+    )
     
     # Get sfw waifu images ordered by FAVOURITES
-    images = await wf.search(included_tags=['waifu'],is_nsfw='null',many=True,order_by='FAVOURITES')
+    images = await wf.search(
+        included_tags=['waifu'],
+        is_nsfw='null',
+        many=True,
+        order_by='FAVOURITES',
+    )
     
     # Get a user favourites
-    favs = await wf.fav(token='The user token if no token is provided it use the one in the client constructor')
+    favourites = await wf.fav(
+        token='if not provided, use the one in the client constructor',
+    )
     
     # Edit your favourites
     await wf.fav_delete(3133)
-    await wf.fav_insert(3133,user_id=11243585148445,token='user_id and token are optional')
+    await wf.fav_insert(
+        3133,
+        user_id=11243585148445,
+        token='user_id and token are optional',
+    )
     fav_state = await wf.fav_toggle(4401)
-    # fav_state wil be equal to 'INSERTED' or 'DELETED'
+    # will be equal to 'INSERTED' or 'DELETED'
  
     await wf.close()
     
@@ -66,7 +80,7 @@ asyncio.run(main())
 ```
 
 ### The Image and Tag instance
-In most of the case the methods will return an Image instance.
+In most of the case the methods will return an `Image` instance.
 The attributes are the same as the json keys that the api returns.
 ```python
 
@@ -84,6 +98,9 @@ image.signature
 
 image.tags[0]
 >>> <waifuim.types.Tag object at 0x73214ccf10>
+
+image.tags[0].name
+>>> 'waifu'
 ```
 
 ### Some useful kwargs in the constructor

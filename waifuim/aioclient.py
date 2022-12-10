@@ -21,9 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 import contextlib
-from .types import Image, Tag
 from typing import (
-    Any,
     Dict,
     List,
     Optional,
@@ -34,9 +32,10 @@ from typing import (
 import aiohttp
 
 from .exceptions import APIException
-from .utils import APIBaseURL, requires_token
-from .moduleinfo import __version__
 from .exceptions import NoToken
+from .moduleinfo import __version__
+from .types import Image, Tag
+from .utils import APIBaseURL, requires_token
 
 
 class WaifuAioClient(contextlib.AbstractAsyncContextManager):
@@ -237,7 +236,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             user_id: int = None,
             token: str = None,
     ) -> Dict:
-        """Remove an image from the user gallery.""
+        """Remove an image from the user gallery.
 
         Args:
             image_id: the file that you want to remove from the gallery.
@@ -249,7 +248,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(user_id=int(user_id), image_id=int(image_id))
+        params = self._prepare_json(
+            user_id=int(user_id) if user_id is not None else None,
+            image_id=int(image_id),
+        )
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/delete", 'delete', json=params, headers=headers)
@@ -261,7 +263,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             user_id: int = None,
             token: str = None,
     ) -> Dict:
-        """Add an image to the user gallery.""
+        """Add an image to the user gallery.
         Args:
             image_id: the file that you want to add to the gallery.
         Kwargs:
@@ -272,7 +274,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(user_id=int(user_id), image_id=int(image_id))
+        params = self._prepare_json(
+            user_id=int(user_id) if user_id is not None else None,
+            image_id=int(image_id),
+        )
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/insert", 'post', json=params, headers=headers)
@@ -284,7 +289,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             user_id: int = None,
             token: str = None,
     ) -> Dict:
-        """Remove or add an image to the user gallery, depending on if it is already in.""
+        """Remove or add an image to the user gallery, depending on if it is already in.
 
         Kwargs:
             user_id: The user's id you want to access the gallery (only for trusted apps).
@@ -294,7 +299,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(user_id=int(user_id), image_id=int(image_id))
+        params = self._prepare_json(
+            user_id=int(user_id) if user_id is not None else None,
+            image_id=int(image_id),
+        )
         headers = self._create_headers(
             **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/toggle", 'post', json=params, headers=headers)
@@ -315,7 +323,11 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(image=int(image_id), description=description, user_id=int(user_id))
+        params = self._prepare_json(
+            image_id=int(image_id),
+            description=description,
+            user_id=int(user_id) if user_id is not None else None,
+        )
         headers = self._create_headers(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
         return await self._make_request(f"{APIBaseURL}report", 'post', json=params, headers=headers)
 
