@@ -26,4 +26,4 @@ class Image:
         return self.url
 
     def __eq__(self, other):
-        return isinstance(other, Image) and self.file == other.file
+        return isinstance(other, Image) and self.image_id == other.image_id
