@@ -108,7 +108,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         session = await self._get_session()
 
         headers = {'User-Agent': self.app_name, 'Accept-Version': 'v5'}
-        provided_headers = kwargs.pop("headers")
+        provided_headers = kwargs.pop("headers", None)
         if provided_headers:
             headers = {**headers, **provided_headers}
         async with session.request(method.upper(), url, headers=headers, **kwargs) as response:
