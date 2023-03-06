@@ -43,18 +43,18 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             self,
             session: aiohttp.ClientSession = None,
             token: Optional[str] = None,
-            appname: str = f'aiohttp/{aiohttp.__version__}; waifuim.py/{__version__}',
+            app_name: str = f'aiohttp/{aiohttp.__version__}; waifuim.py/{__version__}',
     ) -> None:
         """Asynchronous wrapper client for waifu.im API.
         This class is used to interact with the API (http requests).
         Attributes:
             session: An aiohttp session.
             token: your API token.(its optional since you only use it for the private gallery endpoint /fav/)
-            appname: the name of your app in the user agent (please use it its easier to identify you in the logs).
+            app_name: the name of your app in the user agent (please use it its easier to identify you in the logs).
         """
         self.session = session
         self.token = token
-        self.appname = appname
+        self.app_name = app_name
 
     async def __aexit__(
             self,
@@ -83,7 +83,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             if isinstance(i, (list, tuple, set)):
                 rt.update({k: list(i)})
             elif isinstance(i, Image):
-                rt.update({k: i.file})
+                rt.update({k: i.image_id})
             elif i or isinstance(i, bool):
                 rt.update({k: str(i)})
         if rt:
@@ -104,10 +104,15 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             url: str,
             method: str,
             **kwargs,
-    ) -> Dict | None:
+    ) -> Optional[Dict]:
         session = await self._get_session()
-        async with session.request(method.upper(), url, **kwargs) as response:
-            if response.status == 204:
+
+        headers = {'User-Agent': self.app_name, 'Accept-Version': 'v5'}
+        provided_headers = kwargs.pop("headers")
+        if provided_headers:
+            headers = {**headers, **provided_headers}
+        async with session.request(method.upper(), url, headers=headers, **kwargs) as response:
+            if response.status == 204: # old but can still be useful in the future
                 return
             infos = await response.json()
             if response.status in {200, 201}:
@@ -160,7 +165,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                                      gif=gif,
                                      full=full
                                      )
-        headers = self._create_headers(**{'User-Agent': self.appname})
+        headers = {}
         if full:
             if not token and not self.token:
                 raise NoToken(detail="the 'full' query string is only accessible to admins and needs a token")
@@ -221,8 +226,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                                      orientation=orientation,
                                      gif=gif,
                                      )
-        headers = self._create_headers(
-            **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
+        headers = self._create_headers(**{'Authorization': f'Bearer {token if token else self.token}'})
 
         infos = await self._make_request(f"{APIBaseURL}fav", 'get', params=params, headers=headers)
         if raw:
@@ -236,7 +240,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             user_id: int = None,
             token: str = None,
     ) -> Dict:
-        """Remove an image from the user gallery.
+        """Remove an image from the user favorites.
 
         Args:
             image_id: the file that you want to remove from the gallery.
@@ -252,8 +256,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             user_id=int(user_id) if user_id is not None else None,
             image_id=int(image_id),
         )
-        headers = self._create_headers(
-            **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
+        headers = self._create_headers(**{'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/delete", 'delete', json=params, headers=headers)
 
     @requires_token
@@ -263,7 +266,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             user_id: int = None,
             token: str = None,
     ) -> Dict:
-        """Add an image to the user gallery.
+        """Add an image to the user favorites
         Args:
             image_id: the file that you want to add to the gallery.
         Kwargs:
@@ -278,8 +281,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             user_id=int(user_id) if user_id is not None else None,
             image_id=int(image_id),
         )
-        headers = self._create_headers(
-            **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
+        headers = self._create_headers(**{'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/insert", 'post', json=params, headers=headers)
 
     @requires_token
@@ -289,7 +291,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             user_id: int = None,
             token: str = None,
     ) -> Dict:
-        """Remove or add an image to the user gallery, depending on if it is already in.
+        """Remove or add an image to the user favorites, depending on if it is already in.
 
         Kwargs:
             user_id: The user's id you want to access the gallery (only for trusted apps).
@@ -303,8 +305,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             user_id=int(user_id) if user_id is not None else None,
             image_id=int(image_id),
         )
-        headers = self._create_headers(
-            **{'User-Agent': self.appname, 'Authorization': f'Bearer {token if token else self.token}'})
+        headers = self._create_headers(**{'User-Agent': self.app_name, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/toggle", 'post', json=params, headers=headers)
 
     @requires_token
@@ -328,10 +329,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             description=description,
             user_id=int(user_id) if user_id is not None else None,
         )
-        headers = self._create_headers(**{'User-Agent': self.appname, 'Authorization': f'Bearer {self.token}'})
+        headers = self._create_headers(**{'Authorization': f'Bearer {self.token}'})
         return await self._make_request(f"{APIBaseURL}report", 'post', json=params, headers=headers)
 
-    async def tags(self, full=False, raw=False) -> dict | list[Tag]:
+    async def tags(self, full=False, raw=False) -> Union[dict, list[Tag]]:
         """Gets the API endpoints, same as endpoints method but returns a list of Tag (see types.py).
         Returns:
             A list of Tag.
@@ -343,8 +344,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
 
         """
         params = self._create_params(full=full)
-        headers = self._create_headers(**{'User-Agent': self.appname})
-        results = await self._make_request(APIBaseURL + f'tags', 'get', params=params, headers=headers)
+        results = await self._make_request(APIBaseURL + f'tags', 'get', params=params)
         if not full or raw:
             return results
         tags = []

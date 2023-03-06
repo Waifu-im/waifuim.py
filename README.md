@@ -109,7 +109,7 @@ from waifuim import WaifuAioClient
 
 wf = WaifuAioClient(
     session=an_aiohttpClientSession_created_asynchronously,
-    appname="TheNameOfYourApplication",
+    app_name="TheNameOfYourApplication",
     token="The default token to use in routes requiring authentication.",
 )
 
