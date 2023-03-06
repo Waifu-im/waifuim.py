@@ -112,7 +112,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         if provided_headers:
             headers = {**headers, **provided_headers}
         async with session.request(method.upper(), url, headers=headers, **kwargs) as response:
-            if response.status == 204: # old but can still be useful in the future
+            if response.status == 204:  # old but can still be useful in the future
                 return
             infos = await response.json()
             if response.status in {200, 201}:
@@ -305,7 +305,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             user_id=int(user_id) if user_id is not None else None,
             image_id=int(image_id),
         )
-        headers = self._create_headers(**{'User-Agent': self.app_name, 'Authorization': f'Bearer {token if token else self.token}'})
+        headers = self._create_headers(
+            **{'User-Agent': self.app_name, 'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/toggle", 'post', json=params, headers=headers)
 
     @requires_token
