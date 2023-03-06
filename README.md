@@ -46,20 +46,20 @@ async def main():
         excluded_tags=['ero'],
     )
     
-    # Get sfw waifu images ordered by FAVOURITES
+    # Get sfw waifu images ordered by FAVORITES
     images = await wf.search(
         included_tags=['waifu'],
         is_nsfw='null',
         many=True,
-        order_by='FAVOURITES',
+        order_by='FAVORITES',
     )
     
-    # Get a user favourites
-    favourites = await wf.fav(
+    # Get a user favorites
+    favorites = await wf.fav(
         token='if not provided, use the one in the client constructor',
     )
     
-    # Edit your favourites
+    # Edit your favorites
     await wf.fav_delete(3133)
     await wf.fav_insert(
         3133,
