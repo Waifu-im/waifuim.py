@@ -71,12 +71,6 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             return rt
 
     @staticmethod
-    def _prepare_json(**kwargs) -> Optional[Dict]:
-        rt = {k: i for k, i in kwargs.items() if i is not None}
-        if rt:
-            return rt
-
-    @staticmethod
     def _create_params(**kwargs) -> Optional[Dict]:
         rt = {}
         for k, i in kwargs.items():
@@ -85,7 +79,10 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             elif isinstance(i, Image):
                 rt.update({k: i.image_id})
             elif i or isinstance(i, bool):
-                rt.update({k: str(i)})
+                if isinstance(i, str) and i.isdigit():
+                    rt.update({k: int(i)})
+                else:
+                    rt.update({k: str(i)})
         if rt:
             return rt
 
@@ -236,7 +233,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     @requires_token
     async def fav_delete(
             self,
-            image_id: int,
+            image_id: Union[int, Image],
             user_id: int = None,
             token: str = None,
     ) -> Dict:
@@ -252,9 +249,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(
+        params = self._create_params(
             user_id=int(user_id) if user_id is not None else None,
-            image_id=int(image_id),
+            image_id=image_id,
         )
         headers = self._create_headers(**{'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/delete", 'delete', json=params, headers=headers)
@@ -262,7 +259,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     @requires_token
     async def fav_insert(
             self,
-            image_id: int,
+            image_id: Union[int, Image],
             user_id: int = None,
             token: str = None,
     ) -> Dict:
@@ -277,9 +274,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(
+        params = self._create_params(
             user_id=int(user_id) if user_id is not None else None,
-            image_id=int(image_id),
+            image_id=image_id,
         )
         headers = self._create_headers(**{'Authorization': f'Bearer {token if token else self.token}'})
         return await self._make_request(f"{APIBaseURL}fav/insert", 'post', json=params, headers=headers)
@@ -287,7 +284,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     @requires_token
     async def fav_toggle(
             self,
-            image_id: int,
+            image_id: Union[int, Image],
             user_id: int = None,
             token: str = None,
     ) -> Dict:
@@ -301,9 +298,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(
+        params = self._create_params(
             user_id=int(user_id) if user_id is not None else None,
-            image_id=int(image_id),
+            image_id=image_id,
         )
         headers = self._create_headers(
             **{'User-Agent': self.app_name, 'Authorization': f'Bearer {token if token else self.token}'})
@@ -312,7 +309,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     @requires_token
     async def report(
             self,
-            image_id: int,
+            image_id: Union[int, Image],
             description: str = None,
             user_id: int = None,
     ) -> Dict:
@@ -325,8 +322,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
         Raises:
             APIException: If the API response contains an error.
         """
-        params = self._prepare_json(
-            image_id=int(image_id),
+        params = self._create_params(
+            image_id=image_id,
             description=description,
             user_id=int(user_id) if user_id is not None else None,
         )
