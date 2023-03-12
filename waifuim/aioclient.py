@@ -78,6 +78,8 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                 rt.update({k: list(i)})
             elif isinstance(i, Image):
                 rt.update({k: i.image_id})
+            elif isinstance(i, int):
+                rt.update({k: i})
             elif i or isinstance(i, bool):
                 if isinstance(i, str) and i.isdigit():
                     rt.update({k: int(i)})
