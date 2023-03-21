@@ -45,6 +45,12 @@ async def main():
         included_tags=['waifu','maid'],
         excluded_tags=['ero'],
     )
+
+    image = await wf.search(
+        excluded_tags=['maid'],
+        is_nsfw='null',
+        height="<=252"
+    )
     
     # Get sfw waifu images ordered by FAVORITES
     images = await wf.search(
