@@ -129,6 +129,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             many: bool = None,
             order_by: str = None,
             orientation: str = None,
+            width: str = None,
+            height: str = None,
+            byte_size: str = None,
             gif: bool = None,
             full: str = None,
             token: str = None,
@@ -144,6 +147,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             many: Get multiples images instead of a single one (see the api docs for the exact number).
             order_by: Order the images according to the value given (see the docs for the accepted values)
             orientation: Choose the images orientation according to the value given (see the docs for the accepted values)
+            width: Filter images by width (in pixels). Accepted operators: <=, >=, >, <, !=, =. e.g. >=2000
+            height: Filter images by height (in pixels). Accepted operators: <=, >=, >, <, !=, =. e.g. >=2000
+            byte_size: Filter images by byte size. Accepted operators: <=, >=, >, <, !=, =. e.g. >=2000
             gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
             if nothing (or None) is provided then no filter is applied.
             full: Do not limit the result length (only for admins)
@@ -161,6 +167,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                                      many=many,
                                      order_by=order_by,
                                      orientation=orientation,
+                                     width=width,
+                                     height=height,
+                                     byte_size=byte_size,
                                      gif=gif,
                                      full=full
                                      )
@@ -186,9 +195,11 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             included_files: List[str] = None,
             excluded_files: List[str] = None,
             is_nsfw: Union[bool, str] = None,
-            many: bool = None,
             order_by: str = None,
             orientation: str = None,
+            width: str = None,
+            height: str = None,
+            byte_size: str = None,
             gif: bool = None,
             token: str = None,
             raw: bool = False,
@@ -205,6 +216,9 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             many: Get multiples images instead of a single one (see the api docs for the exact number).
             order_by: Order the images according to the value given (see the docs for the accepted values)
             orientation: Choose the images orientation according to the value given (see the docs for the accepted values)
+            width: Filter images by width (in pixels). Accepted operators: <=, >=, >, <, !=, =. e.g. >=2000
+            height: Filter images by height (in pixels). Accepted operators: <=, >=, >, <, !=, =. e.g. >=2000
+            byte_size: Filter images by byte size. Accepted operators: <=, >=, >, <, !=, =. e.g. >=2000
             gif: If False is provided prevent the API to return .gif files, else if True is provided force it to do so
             if nothing (or None) is provided then no filter is applied.
             token: The token that will be use for this request only, this doesn't change the token passed in __init__.
@@ -220,9 +234,11 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                                      included_files=included_files,
                                      excluded_files=excluded_files,
                                      is_nsfw=is_nsfw,
-                                     many=many,
                                      order_by=order_by,
                                      orientation=orientation,
+                                     width=width,
+                                     height=height,
+                                     byte_size=byte_size,
                                      gif=gif,
                                      )
         headers = self._create_headers(**{'Authorization': f'Bearer {token if token else self.token}'})
