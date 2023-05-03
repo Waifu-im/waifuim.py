@@ -21,4 +21,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
 __author__ = 'Buco'
-__version__ = '4.1.2'
+__version__ = '4.2.0'
