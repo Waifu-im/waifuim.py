@@ -272,7 +272,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             image_id=image_id,
         )
         headers = self._create_headers(**{'Authorization': f'Bearer {token if token else self.token}'})
-        return await self._make_request(f"{APIBaseURL}fav/delete", 'delete', json=params, headers=headers)
+        return await self._make_request(f"{APIBaseURL}fav/delete", 'post', json=params, headers=headers)
 
     @requires_token
     async def fav_insert(
