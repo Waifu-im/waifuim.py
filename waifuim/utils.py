@@ -23,14 +23,17 @@ SOFTWARE."""
 from .exceptions import NoToken
 
 APIBaseURL = "https://api.waifu.im/"
+API_VERSION = 'v6'
 
 
 def requires_token(func):
     """A decorator used to check if the user passed a token before trying to use the fav method."""
+
     def wrapper(*args, **kwargs):
         if kwargs.get('token'):
             return func(*args, **kwargs)
         elif args[0].token:
             return func(*args, **kwargs)
         raise NoToken
+
     return wrapper

@@ -35,8 +35,7 @@ from .exceptions import APIException
 from .exceptions import NoToken
 from .moduleinfo import __version__
 from .types import Image, Tag
-from .utils import APIBaseURL, requires_token
-
+from .utils import APIBaseURL, requires_token, API_VERSION
 
 class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     def __init__(
@@ -106,7 +105,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
     ) -> Optional[Dict]:
         session = await self._get_session()
 
-        headers = {'User-Agent': self.app_name, 'Accept-Version': 'v5'}
+        headers = {'User-Agent': self.app_name, 'Accept-Version': API_VERSION}
         provided_headers = kwargs.pop("headers", None)
         if provided_headers:
             headers = {**headers, **provided_headers}
@@ -126,7 +125,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
             included_files: List[str] = None,
             excluded_files: List[str] = None,
             is_nsfw: Union[bool, str] = None,
-            many: bool = None,
+            limit: int = None,
             order_by: str = None,
             orientation: str = None,
             width: str = None,
@@ -164,7 +163,7 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                                      included_files=included_files,
                                      excluded_files=excluded_files,
                                      is_nsfw=is_nsfw,
-                                     many=many,
+                                     limit=limit,
                                      order_by=order_by,
                                      orientation=orientation,
                                      width=width,
@@ -174,9 +173,14 @@ class WaifuAioClient(contextlib.AbstractAsyncContextManager):
                                      full=full
                                      )
         headers = {}
-        if full:
-            if not token and not self.token:
+
+        if not token and not self.token:
+            if full:
                 raise NoToken(detail="the 'full' query string is only accessible to admins and needs a token")
+            if limit is not None and limit > 30:
+                raise NoToken(detail="limit with a number greater than 30 is only accessible to admins and needs a "
+                                     "token")
+        else:
             headers.update({'Authorization': f'Bearer {token if token else self.token}'})
         infos = await self._make_request(f"{APIBaseURL}search", 'get', params=params, headers=headers)
         if raw:
